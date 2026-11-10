@@ -6,6 +6,7 @@
 ## IconTexture: Interface\Icons\Ability_Hunter_MarkedForDeath
 ## Category-enUS: Combat
 ## X-License: MIT
+## X-Curse-Project-ID: 1796699
 ## AddonCompartmentFunc: MobSpot_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: MobSpot_OnAddonCompartmentEnter
 ## AddonCompartmentFuncOnLeave: MobSpot_OnAddonCompartmentLeave
