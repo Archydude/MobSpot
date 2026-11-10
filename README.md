@@ -14,7 +14,7 @@ Each mob on the list has a tick box to stop looking for it for a while without l
 
 ## How far it looks
 
-- **Nameplates:** a listed mob is spotted as soon as its nameplate shows, so the scan radius is the game's nameplate distance. The slider on the options page sets it (the game may keep it lower than you pick), and it changes how far away every nameplate shows. Enemy nameplates have to be on, also out of combat: the options page says when they aren't and has a button to turn them on. The radius you pick and the nameplates MobSpot turns on stay that way, also when another addon resets them each time you log in. Your target, mouseover and focus count too.
+- **Nameplates:** a listed mob is spotted as soon as its nameplate shows, so the scan radius is the game's nameplate distance. The slider on the options page sets it, from 30 to 100 yards (the game may keep it lower than you pick), and it changes how far away every nameplate shows. Enemy nameplates have to be on, also out of combat: the options page says when they aren't and has a button to turn them on. The radius you pick and the nameplates MobSpot turns on stay that way, also when another addon resets them each time you log in. Your target, mouseover and focus count too.
 - **Map markers:** rare mobs the game marks on the map or minimap are spotted within your scan radius, and the alert says how far away they are.
 
 While a mob stays close by it alerts only once. It alerts again after it has been out of reach for a while: 30 seconds unless you pick another time on the options page (5 seconds to 5 minutes).
