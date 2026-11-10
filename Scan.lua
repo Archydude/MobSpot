@@ -60,7 +60,7 @@ end
 -- Scan radius: the game's nameplate distance
 ---------------------------------------------------------------------------
 
-ns.RADIUS_MIN, ns.RADIUS_MAX = 10, 100
+ns.RADIUS_MIN, ns.RADIUS_MAX = 30, 100
 local APPLY_DELAY = 1 -- seconds after entering the world or leaving combat before putting them back
 
 -- The radius and "nameplates on" are the game's own settings, which other addons may set on
@@ -81,7 +81,7 @@ end
 local function apply()
 	if InCombatLockdown() then return end
 	local changed = false
-	local radius = ns.db.radius
+	local radius = ns.db.radius and math.max(ns.db.radius, ns.RADIUS_MIN) -- a pick from before the minimum went up
 	if radius and math.floor(ns.Radius() + 0.5) ~= radius then
 		C_CVar.SetCVar("nameplateMaxDistance", tostring(radius))
 		changed = true
@@ -97,7 +97,7 @@ end
 -- Sets the nameplate distance. The game keeps it within its own limit, which ns.Radius() shows
 -- afterwards. During combat it waits for combat to end; returns false then.
 function ns.SetRadius(yards)
-	ns.db.radius = math.floor(yards + 0.5)
+	ns.db.radius = math.max(ns.RADIUS_MIN, math.min(ns.RADIUS_MAX, math.floor(yards + 0.5)))
 	if InCombatLockdown() then return false end
 	apply()
 	ns.Fire("SettingChanged", "radius")
