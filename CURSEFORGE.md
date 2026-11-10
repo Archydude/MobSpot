@@ -21,7 +21,7 @@ Alerts you when a mob on your list is close by. Add mobs with one key, by name o
 
 **License:** `MIT License`
 
-**Logo / avatar:** `MobSpot\images\logo-v1.png` (not made yet)
+**Logo / avatar:** `MobSpot\images\logo-v1.png`
 
 **Description** (paste everything between the lines)
 
