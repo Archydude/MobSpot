@@ -2,10 +2,14 @@
 ArchdudeWhatsNew:Register("MobSpot", {
 	title = "MobSpot",
 	icon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
-	version = "1.0.0",
+	version = "1.1.0",
 	seen = "MobSpotWhatsNew",
 	saved = { "MobSpotDB" },
 	changes = {
+		{ "1.1.0",
+			"New option under the mob list: |cffffd100Scan rares automatically|r. Any rare mob close by alerts you, with \"(rare)\" after its name, and gets the marker over its nameplate, without going on your list.",
+			"MobSpot's key has a MobSpot section of its own on the game's Keybindings page, and |cffffd100Set keybinds|r on the options page opens it right at the key. A key you already set stays set.",
+		},
 		{ "1.0.0",
 			"First release: keep a list of mobs to look for and get an alert when one is close by.",
 			"Target a mob and press your MobSpot key to put it on the list, or press it again to take it off. You can also type a mob's name or NPC ID on the options page.",

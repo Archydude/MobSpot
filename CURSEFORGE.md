@@ -13,7 +13,7 @@ MobSpot
 
 **Summary**
 ```
-Alerts you when a mob on your list is close by. Add mobs with one key, by name or NPC ID, and get a sound, an on-screen alert and a marker over the mob.
+Alerts you when a mob on your list, or any rare, is close by. Add mobs with one key, by name or NPC ID, and get a sound, an on-screen alert and a marker over the mob.
 ```
 
 **Main category:** `Map & Minimap`
@@ -34,12 +34,13 @@ MobSpot keeps a list of the mobs you're looking for and alerts you the moment on
 ### Add mobs your way
 - **One key:** target a mob and press **Track/Untrack Target** to put it on the list. Press it again to take it off.
 - **By name or NPC ID:** type it on the options page, handy for a rare you haven't met yet.
-- Untick a mob for a while without losing it. The list is shared by all your characters.
+- **Every rare, automatically:** turn on **Scan rares automatically** and any rare close by alerts you too, no list needed.
+- The list is shared by all your characters.
 
 ### Spotted as soon as it shows
 - A listed mob is spotted the moment its nameplate shows. The scan radius is your nameplate distance, 30 to 100 yards, set with a slider.
 - Rares the game marks on the map or minimap are spotted too, and the alert says how many yards away they are.
-- MobSpot can turn enemy nameplates on for you, and keeps your radius and nameplates the way you set them, even when another addon resets them at login.
+- MobSpot can turn enemy nameplates on for you, and keeps them the way you set them.
 
 ### An alert you won't miss
 - The mob's name and how close it is, big at the top of the screen.
@@ -63,11 +64,11 @@ A skull over its nameplate, so you can pick it out of a crowd. Or a red cross, s
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.0.0.zip`
+**File:** `dist\MobSpot-1.1.0.zip`
 
 **Display name**
 ```
-MobSpot 1.0.0
+MobSpot 1.1.0
 ```
 
 **Release type:** `Release`
@@ -76,6 +77,10 @@ MobSpot 1.0.0
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.1.0
+- New option under the mob list: **Scan rares automatically**. Any rare mob close by alerts you, with "(rare)" after its name, and gets the marker over its nameplate, without going on your list.
+- MobSpot's key has a MobSpot section of its own on the game's Keybindings page, and **Set keybinds** on the options page opens it right at the key. A key you already set stays set.
+
 1.0.0
 - First release: keep a list of mobs to look for and get an alert when one is close by.
 - Target a mob and press your MobSpot key to put it on the list, or press it again to take it off. You can also type a mob's name or NPC ID on the options page.

@@ -194,7 +194,13 @@ local function buildMobs(y)
 			.. ", or type its name or ID above.")
 		mobEmpty:SetShown(ns.MobCount() == 0)
 	end)
-	return y - ROW_HEIGHT * LIST_ROWS - 20
+	y = y - ROW_HEIGHT * LIST_ROWS - 20
+
+	local get, set = setting("rares")
+	checkbox("Scan rares automatically",
+		"Alerts you for any rare mob close by, also ones that aren't on your list, and puts the marker over it. They don't go on the list.",
+		get, set):SetPoint("TOPLEFT", 16, y)
+	return y - 40
 end
 
 ---------------------------------------------------------------------------
@@ -407,11 +413,35 @@ local function bindLine(label, binding, y)
 	end)
 end
 
+local EXPAND_TRIES = { 0, 0.1, 0.3 } -- seconds after opening to look for MobSpot's section
+
+-- Expands MobSpot's section on the Keybindings page, the way clicking its header does.
+-- True once it's open (or already was), false while the page hasn't drawn it yet.
+local function expandKeybindSection()
+	local list = SettingsPanel and SettingsPanel.GetSettingsList and SettingsPanel:GetSettingsList()
+	local box = list and list.ScrollBox
+	if not (box and box.FindFrameByPredicate) then return true end
+	local frame = box:FindFrameByPredicate(function(_, elementData)
+		return elementData and elementData.data and elementData.data.name == ns.BIND_SECTION
+	end)
+	if not frame then return false end
+	local data = frame.GetElementData and frame:GetElementData().data
+	if data and not data.expanded and frame.Button then frame.Button:Click() end
+	return true
+end
+
+-- Opens the game's Keybindings page scrolled to MobSpot's own section, opened up.
 local function openKeybinds()
-	if Settings.KEYBINDINGS_CATEGORY_ID then
-		Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID)
-	else
-		ns.Print("set them under Esc > Options > Keybindings > AddOns.")
+	if not Settings.KEYBINDINGS_CATEGORY_ID then
+		ns.Print("set it under Esc > Options > Keybindings > MobSpot.")
+		return
+	end
+	Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, ns.BIND_SECTION)
+	local done = false
+	for _, delay in ipairs(EXPAND_TRIES) do
+		C_Timer.After(delay, function()
+			if not done then done = expandKeybindSection() end
+		end)
 	end
 end
 
@@ -421,7 +451,7 @@ local function buildKeybinds(y)
 	bindLine("Track/Untrack Target", ns.BIND_ADD, y)
 	local set = button(content, "Set keybinds", 130, openKeybinds)
 	set:SetPoint("TOPRIGHT", content, "TOPLEFT", WIDTH, y + 4)
-	tooltip(set, "Set keybinds", "Opens the game's keybindings. MobSpot's key is under AddOns.")
+	tooltip(set, "Set keybinds", "Opens the game's keybindings at MobSpot's key.")
 	y = y - 40
 
 	local minimap = checkbox("Show minimap button", "Same as /ms minimap.",

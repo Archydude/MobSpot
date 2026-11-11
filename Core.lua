@@ -34,6 +34,7 @@ local DEFAULTS = {
 	enabled = true,          -- scanning on or off
 	mobs = {},               -- [lowercase name] = { name = "Shown name", npcID = number or nil, on = true }
 	mapMarkers = true,       -- mobs the game marks on the map and minimap
+	rares = false,           -- also every rare mob, listed or not
 	sound = "raidwarning",   -- a key of ns.SOUNDS
 	radius = false,          -- the scan radius the player picked, in yards; false until they pick one
 	nameplates = false,      -- true once the player had MobSpot turn on enemy nameplates
@@ -305,10 +306,11 @@ function ns.SetEnabled(on)
 end
 
 ---------------------------------------------------------------------------
--- Keybinds (Esc > Options > Keybindings > AddOns > MobSpot)
+-- Keybinds (Esc > Options > Keybindings > MobSpot)
 ---------------------------------------------------------------------------
 
-BINDING_HEADER_MOBSPOT = "MobSpot"
+BINDING_CATEGORY_MOBSPOT = "MobSpot" -- its own section on the Keybindings page
+ns.BIND_SECTION = BINDING_CATEGORY_MOBSPOT
 BINDING_NAME_MOBSPOT_TOGGLETARGET = "MobSpot: Track/Untrack Target"
 
 -- The key bound to a keybind, as the game writes it ("SHIFT-K"), or nil.

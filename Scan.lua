@@ -3,6 +3,7 @@
 --   nameplates    every mob with a nameplate (and your target, mouseover and focus); the scan
 --                 radius is the game's nameplate distance. Listed mobs get a skull (Marker.lua).
 --   map markers   mobs the game marks on the map and minimap, with their real distance
+-- With "every rare" on, any rare mob counts too, listed or not (key "rare:<NPC ID or name>").
 -- Forever's game refuses TargetUnit from addons before it looks for the unit, so the old
 -- "refused means it's near" trick can't tell anything there (tested 2026-11-10).
 
@@ -14,6 +15,9 @@ local MAX_PLATES = 40    -- nameplate1 .. nameplate40
 
 local byName, byNpc = {}, {} -- lookups built from the list: [lowercase name] / [npcID] = key
 local seen = {}              -- [key] = when it was last found
+local rares = {}             -- [rare key] = { name, rare = true }: rares found that aren't listed
+local RARE_KINDS = { rare = true, rareelite = true } -- the game's classifications counted as rare
+local RARE_MARKER = "VignetteKill" -- the start of the map marker atlas of rare mobs
 
 local function rebuild()
 	wipe(byName)
@@ -25,7 +29,7 @@ local function rebuild()
 		end
 	end
 	for key in pairs(seen) do
-		if not byName[key] then seen[key] = nil end
+		if not byName[key] and not rares[key] then seen[key] = nil end
 	end
 end
 
@@ -47,13 +51,25 @@ local function match(guid, name)
 	return key
 end
 
--- A listed mob was found. `how` is "near" (a nameplate, target, mouseover or focus) or "map"
--- (with `yards`, nil when the map can't tell).
+-- The key of an unlisted rare, after noting its name for the alert; nil when "every rare" is off.
+local function rareKey(guid, name)
+	if not ns.db.rares then return end
+	name = ns.Plain(name)
+	if type(name) ~= "string" or name == "" then return end
+	local key = "rare:" .. (ns.NpcID(guid) or name:lower())
+	rares[key] = rares[key] or { name = name, rare = true }
+	return key
+end
+
+-- A listed mob or a rare was found. `how` is "near" (a nameplate, target, mouseover or focus) or
+-- "map" (with `yards`, nil when the map can't tell).
 local function found(key, how, yards)
 	local now = GetTime()
 	local last = seen[key]
 	seen[key] = now
-	if not (last and now - last < ns.db.alertAgain) then ns.Alert(ns.db.mobs[key], how, yards) end
+	if not (last and now - last < ns.db.alertAgain) then
+		ns.Alert(ns.db.mobs[key] or rares[key], how, yards)
+	end
 end
 
 ---------------------------------------------------------------------------
@@ -123,12 +139,15 @@ ns.On("PLAYER_REGEN_ENABLED", applySoon)
 -- Nameplates, target, mouseover, focus
 ---------------------------------------------------------------------------
 
--- The list key of a living listed mob on `unit`, after alerting for it; nil for anything else.
+-- The key of a living listed mob or rare on `unit`, after alerting for it; nil for anything else.
 local function checkUnit(unit)
 	if not UnitExists(unit) then return end
 	local player, dead = ns.Plain(UnitIsPlayer(unit)), ns.Plain(UnitIsDead(unit))
 	if player ~= false or dead ~= false then return end
 	local key = match(UnitGUID(unit), UnitName(unit))
+	if not key and RARE_KINDS[ns.Plain(UnitClassification(unit)) or ""] then
+		key = rareKey(UnitGUID(unit), UnitName(unit))
+	end
 	if key then found(key, "near") end
 	return key
 end
@@ -169,6 +188,10 @@ local function scanMarkers()
 		local info = C_VignetteInfo.GetVignetteInfo(guid)
 		if info and not info.isDead then
 			local key = match(info.objectGUID, info.name)
+			local atlas = ns.Plain(info.atlasName)
+			if not key and type(atlas) == "string" and atlas:sub(1, #RARE_MARKER) == RARE_MARKER then
+				key = rareKey(info.objectGUID, info.name)
+			end
 			if key then
 				local yards = markerYards(guid)
 				if not yards or yards <= radius then found(key, "map", yards) end
@@ -182,7 +205,7 @@ end
 ---------------------------------------------------------------------------
 
 local function tick()
-	if not ns.db.enabled or not next(byName) then
+	if not ns.db.enabled or not (next(byName) or ns.db.rares) then
 		ns.ClearMarks()
 		return
 	end

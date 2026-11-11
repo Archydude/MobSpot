@@ -6,9 +6,11 @@ Type `/ms` (or `/mobspot`) for the options, or find them under Esc > Options > A
 
 ## Adding mobs
 
-- **With a key:** set **MobSpot: Track/Untrack Target** under Esc > Options > Keybindings > AddOns > MobSpot. Target a mob and press it to put the mob on the list; press it again with the mob targeted to take it off.
+- **With a key:** set **MobSpot: Track/Untrack Target** under Esc > Options > Keybindings > MobSpot (the **Set keybinds** button on the options page takes you there). Target a mob and press it to put the mob on the list; press it again with the mob targeted to take it off.
 - **By name or ID:** type the name on the options page, exactly as the game shows it, or the mob's NPC ID (the number in its Wowhead link), and press Enter. Handy for a rare you haven't met yet. A mob added by ID shows its name once the game knows it, at the latest when it's first spotted.
 - `/ms target` does the same as the key.
+
+**Scan rares automatically**, under the list, alerts you for any rare mob close by, on your list or not, with "(rare)" after its name. They don't go on the list.
 
 Each mob on the list has a tick box to stop looking for it for a while without losing it, and an X to take it off. The list is shared by all your characters.
 

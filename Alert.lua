@@ -158,9 +158,9 @@ local function show(name, how, yards, testing)
 	if ns.db.flash then flashScreen() end
 end
 
--- A listed mob was found. `how` is "near" or "map" (with `yards`).
+-- A listed mob or a rare was found. `how` is "near" or "map" (with `yards`).
 function ns.Alert(mob, how, yards)
-	if mob then show(mob.name, how, yards) end
+	if mob then show(mob.rare and (mob.name .. " (rare)") or mob.name, how, yards) end
 end
 
 function ns.TestAlert()

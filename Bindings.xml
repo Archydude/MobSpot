@@ -1,5 +1,5 @@
 <Bindings>
-	<Binding name="MOBSPOT_TOGGLETARGET" header="MOBSPOT" category="ADDONS">
+	<Binding name="MOBSPOT_TOGGLETARGET" category="BINDING_CATEGORY_MOBSPOT">
 		SlashCmdList.MOBSPOT("target")
 	</Binding>
 </Bindings>
