@@ -2,10 +2,13 @@
 ArchdudeWhatsNew:Register("MobSpot", {
 	title = "MobSpot",
 	icon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
-	version = "1.1.0",
+	version = "1.1.1",
 	seen = "MobSpotWhatsNew",
 	saved = { "MobSpotDB" },
 	changes = {
+		{ "1.1.1",
+			"Fixed an error when opening the options during combat (\"tried to call the protected function 'OpenSettingsPanel()'\"). The options now open as soon as the fight ends.",
+		},
 		{ "1.1.0",
 			"New option under the mob list: |cffffd100Scan rares automatically|r. Any rare mob close by alerts you, with \"(rare)\" after its name, and gets the marker over its nameplate, without going on your list.",
 			"MobSpot's key has a MobSpot section of its own on the game's Keybindings page, and |cffffd100Set keybinds|r on the options page opens it right at the key. A key you already set stays set.",

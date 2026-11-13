@@ -64,11 +64,11 @@ A skull over its nameplate, so you can pick it out of a crowd. Or a red cross, s
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.1.0.zip`
+**File:** `dist\MobSpot-1.1.1.zip`
 
 **Display name**
 ```
-MobSpot 1.1.0
+MobSpot 1.1.1
 ```
 
 **Release type:** `Release`
@@ -77,6 +77,9 @@ MobSpot 1.1.0
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.1.1
+- Fixed an error when opening the options during combat ("tried to call the protected function 'OpenSettingsPanel()'"). The options now open as soon as the fight ends.
+
 1.1.0
 - New option under the mob list: **Scan rares automatically**. Any rare mob close by alerts you, with "(rare)" after its name, and gets the marker over its nameplate, without going on your list.
 - MobSpot's key has a MobSpot section of its own on the game's Keybindings page, and **Set keybinds** on the options page opens it right at the key. A key you already set stays set.

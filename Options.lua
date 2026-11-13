@@ -17,8 +17,31 @@ local function refreshAll()
 	for _, refresh in ipairs(refreshers) do refresh() end
 end
 
+-- The game doesn't let addons open its settings during combat, so a request then waits for the fight to end.
+local openAfterCombat -- the function to run when combat ends
+
+local function waitForCombatEnd(open, what)
+	if not openAfterCombat then
+		ns.Print(what .. " open when you leave combat.")
+	end
+	openAfterCombat = open
+end
+
+ns.On("PLAYER_REGEN_ENABLED", function()
+	local open = openAfterCombat
+	if open then
+		openAfterCombat = nil
+		open()
+	end
+end)
+
 function ns.OpenOptions()
-	if category then Settings.OpenToCategory(category:GetID()) end
+	if not category then return end
+	if InCombatLockdown() then
+		waitForCombatEnd(ns.OpenOptions, "the options")
+		return
+	end
+	Settings.OpenToCategory(category:GetID())
 end
 
 ---------------------------------------------------------------------------
@@ -434,6 +457,10 @@ end
 local function openKeybinds()
 	if not Settings.KEYBINDINGS_CATEGORY_ID then
 		ns.Print("set it under Esc > Options > Keybindings > MobSpot.")
+		return
+	end
+	if InCombatLockdown() then
+		waitForCombatEnd(openKeybinds, "the keybindings")
 		return
 	end
 	Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, ns.BIND_SECTION)

@@ -2,7 +2,7 @@
 ## Title: MobSpot
 ## Notes: Alerts you when a mob on your list is close by: target a mob and press your key to add it, or type its name or ID. Type /ms.
 ## Author: Archdude
-## Version: 1.1.0
+## Version: 1.1.1
 ## IconTexture: Interface\Icons\Ability_Hunter_MarkedForDeath
 ## Category-enUS: Combat
 ## X-License: MIT
