@@ -56,6 +56,8 @@ A skull over its nameplate, so you can pick it out of a crowd. Or a red cross, s
 - Only mobs: the game doesn't let addons see herbs, ore or other things you gather.
 - Mobs are spotted no further out than nameplates or map markers show. There's no marker in dungeons and raids.
 
+This addon was made with AI.
+
 **Feedback and bug reports are welcome** in the comments.
 ```
 ---

@@ -51,3 +51,6 @@ The minimap button opens the options; right-click it to turn scanning on or off.
 - Only mobs. Herbs, ore and other things you gather can't be seen by addons.
 - A mob is spotted no further out than nameplates show, or than a map marker is shown. The game doesn't let addons look further.
 - In some instances the game hides mob names from addons, so nothing there is spotted.
+
+## Made with AI
+This addon was made with AI.
