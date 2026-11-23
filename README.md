@@ -23,7 +23,7 @@ While a mob stays close by it alerts only once. It alerts again when it has left
 
 ## The alert
 
-- The mob's name and how close it is, at the top of the screen, for up to 3 different mobs at once. With **Keep the message on screen** on, it stays for as long as the mob is in range, and 1 minute more when you look away from the mob.
+- The mob's name and how close it is, at the top of the screen, for up to 3 different mobs at once. With **Keep the message on screen** on, it stays for as long as the mob is in range, and 1 minute more when you look away from the mob. To move the message, open the game's Edit Mode and drag the **MobSpot alert** box; right-click the box to put it back.
 - A sound: one of a dozen game alert sounds (raid warning, ready check, alarm clock, boss emote, map ping and more), any sound your other addons share, or none. It plays even with sound effects turned down. If the addon a shared sound comes from isn't loaded, you hear the raid warning instead.
 - A line in chat.
 - A flash of the screen edges, and the game's taskbar icon blinks when the game is in the background.

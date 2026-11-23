@@ -47,6 +47,7 @@ local DEFAULTS = {
 	alertEach = false,       -- every mob of the same name alerts on its own, not only the first
 	screenText = true,       -- big message at the top of the screen
 	keepMessage = false,     -- that message stays for as long as the mob is in range
+	messageSpot = false,     -- { x, y } where the player dragged that message in Edit Mode
 	chatLine = true,         -- a line in chat
 	flash = true,            -- flash the screen edges, and the game's taskbar icon
 	marker = true,           -- a marker over a listed mob's nameplate

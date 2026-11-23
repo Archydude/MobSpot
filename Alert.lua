@@ -78,10 +78,19 @@ local MESSAGE_ROW = 58   -- from one row to the next
 local rows = {}          -- every row built so far
 local showing = {}       -- the rows on screen, top to bottom
 
+-- Where the first row's top middle sits, from the top middle of the screen: where the player
+-- dragged it in Edit Mode, else the usual spot.
+local function messageSpot()
+	local spot = ns.db.messageSpot
+	if type(spot) == "table" and spot.x and spot.y then return spot.x, spot.y end
+	return 0, MESSAGE_TOP
+end
+
 local function layout()
+	local x, y = messageSpot()
 	for i, row in ipairs(showing) do
 		row:ClearAllPoints()
-		row:SetPoint("TOP", UIParent, "TOP", 0, MESSAGE_TOP - (i - 1) * MESSAGE_ROW)
+		row:SetPoint("TOP", UIParent, "TOP", x, y - (i - 1) * MESSAGE_ROW)
 	end
 end
 
@@ -146,6 +155,90 @@ local function rowFor(id)
 	showing[#showing + 1] = row
 	return row
 end
+
+---------------------------------------------------------------------------
+-- Moving the message: a box to drag while the game's Edit Mode is open
+---------------------------------------------------------------------------
+
+local MOVER_WIDTH = 420
+local MOVER_EDGE = 2 -- the box's outline
+local mover
+
+local function placeMover()
+	local x, y = messageSpot()
+	mover:ClearAllPoints()
+	mover:SetPoint("TOP", UIParent, "TOP", x, y)
+end
+
+local function buildMover()
+	mover = CreateFrame("Frame", nil, UIParent)
+	mover:SetSize(MOVER_WIDTH, MAX_MESSAGES * MESSAGE_ROW)
+	mover:SetFrameStrata("HIGH")
+	mover:SetFrameLevel(50)
+	mover:SetClampedToScreen(true)
+	mover:SetMovable(true)
+	mover:EnableMouse(true)
+	mover:RegisterForDrag("LeftButton")
+	mover:Hide()
+
+	local fill = mover:CreateTexture(nil, "BACKGROUND")
+	fill:SetAllPoints()
+	fill:SetColorTexture(0.1, 0.5, 0.9, 0.3)
+	local function edge(point, other, width, height)
+		local line = mover:CreateTexture(nil, "BORDER")
+		line:SetColorTexture(0.4, 0.8, 1, 0.9)
+		line:SetPoint(point)
+		line:SetPoint(other)
+		if width then line:SetWidth(width) else line:SetHeight(height) end
+	end
+	edge("TOPLEFT", "TOPRIGHT", nil, MOVER_EDGE)
+	edge("BOTTOMLEFT", "BOTTOMRIGHT", nil, MOVER_EDGE)
+	edge("TOPLEFT", "BOTTOMLEFT", MOVER_EDGE)
+	edge("TOPRIGHT", "BOTTOMRIGHT", MOVER_EDGE)
+
+	local title = mover:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	title:SetPoint("CENTER", 0, 12)
+	title:SetText("MobSpot alert")
+	local hint = mover:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	hint:SetPoint("TOP", title, "BOTTOM", 0, -6)
+	hint:SetText("Drag to move. Right-click to put it back.")
+
+	mover:SetScript("OnDragStart", mover.StartMoving)
+	mover:SetScript("OnDragStop", function(self)
+		self:StopMovingOrSizing()
+		local middle, top = self:GetCenter(), self:GetTop()
+		if middle and top then
+			ns.db.messageSpot = {
+				x = math.floor(middle - UIParent:GetWidth() / 2 + 0.5),
+				y = math.floor(top - UIParent:GetHeight() + 0.5),
+			}
+		end
+		placeMover()
+		layout()
+	end)
+	mover:SetScript("OnMouseUp", function(_, button)
+		if button ~= "RightButton" then return end
+		ns.db.messageSpot = false
+		placeMover()
+		layout()
+	end)
+end
+
+local function showMover()
+	if not mover then buildMover() end
+	placeMover()
+	mover:Show()
+end
+
+local function hideMover()
+	if mover then mover:Hide() end
+end
+
+ns.On("PLAYER_LOGIN", function()
+	if not EditModeManagerFrame then return end
+	EditModeManagerFrame:HookScript("OnShow", showMover)
+	EditModeManagerFrame:HookScript("OnHide", hideMover)
+end)
 
 local function buildFlash()
 	flash = CreateFrame("Frame", nil, UIParent)

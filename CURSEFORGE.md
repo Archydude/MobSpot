@@ -43,7 +43,7 @@ MobSpot keeps a list of the mobs you're looking for and alerts you the moment on
 - MobSpot can turn enemy nameplates on for you and keep them on.
 
 ### An alert you won't miss
-- The mob's name, big at the top of the screen, for up to 3 different mobs at once. It can stay for as long as the mob is in range.
+- The mob's name, big at the top of the screen, for up to 3 different mobs at once. It can stay for as long as the mob is in range, and you can drag it anywhere in Edit Mode.
 - A sound that plays even with sound effects turned down: a dozen game alerts, or any sound your other addons share.
 - A chat line and a flash of the screen edges.
 - **Several of the same mob:** with **Alert for each mob of the same name**, every one that comes close gets its own alert, with the total in range on screen.
@@ -67,11 +67,11 @@ This addon was made with AI.
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.2.0.zip`
+**File:** `dist\MobSpot-1.3.0.zip`
 
 **Display name**
 ```
-MobSpot 1.2.0
+MobSpot 1.3.0
 ```
 
 **Release type:** `Release`
@@ -80,6 +80,9 @@ MobSpot 1.2.0
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.3.0
+- You can move the alert message: open the game's Edit Mode and drag the **MobSpot alert** box to where you want it. Right-click the box to put it back.
+
 1.2.0
 - New option: **Alert for each mob of the same name**. Every mob of the same name that comes close gets its own alert, and the message shows how many of them are in range, kept up to date while it's on screen.
 - New option: **Keep the message on screen, and 1 minute more when you look away**. The message stays for as long as the mob is in range, instead of fading after a few seconds.

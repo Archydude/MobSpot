@@ -2,10 +2,13 @@
 ArchdudeWhatsNew:Register("MobSpot", {
 	title = "MobSpot",
 	icon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
-	version = "1.2.0",
+	version = "1.3.0",
 	seen = "MobSpotWhatsNew",
 	saved = { "MobSpotDB" },
 	changes = {
+		{ "1.3.0",
+			"You can move the alert message: open the game's Edit Mode and drag the |cffffd100MobSpot alert|r box to where you want it. Right-click the box to put it back.",
+		},
 		{ "1.2.0",
 			"New option: |cffffd100Alert for each mob of the same name|r. Every mob of the same name that comes close gets its own alert, and the message shows how many of them are in range, kept up to date while it's on screen.",
 			"New option: |cffffd100Keep the message on screen, and 1 minute more when you look away|r. The message stays for as long as the mob is in range, instead of fading after a few seconds.",

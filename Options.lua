@@ -350,7 +350,7 @@ local function buildAlert(y)
 	y = y - 34
 
 	get, set = setting("screenText")
-	checkbox("Message at the top of the screen", "The mob's name and how close it is, for a few seconds.", get, set)
+	checkbox("Message at the top of the screen", "The mob's name and how close it is, for a few seconds. To move it, open the game's Edit Mode and drag the MobSpot alert box.", get, set)
 		:SetPoint("TOPLEFT", 16, y)
 	y = y - 30
 	get, set = setting("keepMessage")
