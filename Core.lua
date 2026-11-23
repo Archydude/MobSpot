@@ -41,7 +41,11 @@ local DEFAULTS = {
 	mobs = {},               -- [lowercase name] = { name = "Shown name", npcID = number or nil, on = true }
 	mapMarkers = true,       -- mobs the game marks on the map and minimap
 	rares = false,           -- also every rare mob, listed or not
+	playersEnemy = false,    -- also players of the other faction
+	playersAttack = false,   -- also players the player can attack
+	playersPvp = false,      -- those two also inside battlegrounds and arenas
 	sound = "raidwarning",   -- a key of ns.SOUNDS
+	playerSound = "alarm",   -- the same, for the enemy players alert
 	radius = false,          -- the scan radius the player picked, in yards; false until they pick one
 	nameplates = false,      -- true once the player had MobSpot turn on enemy nameplates
 	alertEach = false,       -- every mob of the same name alerts on its own, not only the first
@@ -52,6 +56,7 @@ local DEFAULTS = {
 	flash = true,            -- flash the screen edges, and the game's taskbar icon
 	marker = true,           -- a marker over a listed mob's nameplate
 	markerStyle = "skull",   -- a key of ns.MARKERS
+	playerMarkerStyle = "cross", -- a key of ns.PLAYER_MARKERS, for enemy players
 	markerSize = 34,         -- the marker's size
 	markerMotion = "bob",    -- a key of ns.MOTIONS
 	minimap = { hide = false, minimapPos = 250 },

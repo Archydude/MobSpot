@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0
+- MobSpot can alert you for enemy players. Two new options under the mob list: **Scan enemy-faction players** and **Scan players you can attack**. Enemy players close by share one "Enemy players" line that says how many there are.
+- Enemy players have a sound of their own (**Sound for players**) and a nameplate marker of their own (**Marker for players**), so you can tell them from mobs.
+- Players don't alert in battlegrounds and arenas unless you turn on **Scan players in battlegrounds and arenas too**.
+
 ## 1.3.0
 - You can move the alert message: open the game's Edit Mode and drag the **MobSpot alert** box to where you want it. Right-click the box to put it back.
 

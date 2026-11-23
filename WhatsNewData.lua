@@ -2,10 +2,15 @@
 ArchdudeWhatsNew:Register("MobSpot", {
 	title = "MobSpot",
 	icon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
-	version = "1.3.0",
+	version = "1.4.0",
 	seen = "MobSpotWhatsNew",
 	saved = { "MobSpotDB" },
 	changes = {
+		{ "1.4.0",
+			"MobSpot can alert you for enemy players. Two new options under the mob list: |cffffd100Scan enemy-faction players|r and |cffffd100Scan players you can attack|r. Enemy players close by share one \"Enemy players\" line that says how many there are.",
+			"Enemy players have a sound of their own (|cffffd100Sound for players|r) and a nameplate marker of their own (|cffffd100Marker for players|r), so you can tell them from mobs.",
+			"Players don't alert in battlegrounds and arenas unless you turn on |cffffd100Scan players in battlegrounds and arenas too|r.",
+		},
 		{ "1.3.0",
 			"You can move the alert message: open the game's Edit Mode and drag the |cffffd100MobSpot alert|r box to where you want it. Right-click the box to put it back.",
 		},

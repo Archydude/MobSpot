@@ -51,6 +51,8 @@ local function stillHidden(guid, now)
 	return not gone
 end
 local rares = {}             -- [rare key] = { name, rare = true }: rares found that aren't listed
+local PLAYERS = "players:"   -- the one key every enemy player is found under
+rares[PLAYERS] = { name = "Enemy players", players = true }
 local RARE_KINDS = { rare = true, rareelite = true } -- the game's classifications counted as rare
 local RARE_MARKER = "VignetteKill" -- the start of the map marker atlas of rare mobs
 
@@ -144,7 +146,7 @@ local function found(key, how, yards, guid)
 		ones[key][guid] = now
 	end
 	if last and now - last < ALERT_AGAIN then return end
-	if not each then
+	if not (each or key == PLAYERS) then -- enemy players always show their total
 		ns.Alert(key, ns.db.mobs[key] or rares[key], how, yards)
 		return
 	end
@@ -277,11 +279,35 @@ ns.On("PLAYER_REGEN_ENABLED", applySoon)
 -- Nameplates, target, mouseover, focus
 ---------------------------------------------------------------------------
 
+-- true inside battlegrounds and arenas, where enemy players are everywhere.
+local function pvpGround()
+	local _, kind = IsInInstance()
+	return kind == "pvp" or kind == "arena"
+end
+
+-- true when the player on `unit` is one the options ask to be alerted for.
+local function wantedPlayer(unit)
+	local faction, attack = ns.db.playersEnemy, ns.db.playersAttack
+	if not (faction or attack) or (pvpGround() and not ns.db.playersPvp) then return false end
+	if ns.Plain(UnitIsUnit(unit, "player")) ~= false or ns.Plain(UnitIsGhost(unit)) ~= false then return false end
+	if attack and ns.Plain(UnitCanAttack("player", unit)) == true then return true end
+	if not faction then return false end
+	local mine, theirs = UnitFactionGroup("player"), ns.Plain(UnitFactionGroup(unit))
+	return (mine ~= nil and theirs ~= nil and mine ~= theirs) or ns.Plain(UnitIsEnemy("player", unit)) == true
+end
+
 -- The key of a living listed mob or rare on `unit`, after alerting for it; nil for anything else.
+-- An enemy player the options ask for gives the players' key.
 local function checkUnit(unit)
 	if not UnitExists(unit) then return end
 	local player, dead = ns.Plain(UnitIsPlayer(unit)), ns.Plain(UnitIsDead(unit))
-	if player ~= false or dead ~= false then return end
+	if dead ~= false then return end
+	if player == true then
+		if not wantedPlayer(unit) then return end
+		found(PLAYERS, "near", nil, UnitGUID(unit))
+		return PLAYERS
+	end
+	if player ~= false then return end
 	local guid = UnitGUID(unit)
 	local key = match(guid, UnitName(unit))
 	if not key and RARE_KINDS[ns.Plain(UnitClassification(unit)) or ""] then
@@ -295,7 +321,7 @@ local function checkPlate(unit)
 	local key = checkUnit(unit)
 	local guid = key and ns.Plain(UnitGUID(unit))
 	plateGuid[unit] = type(guid) == "string" and guid or nil
-	ns.Mark(unit, key ~= nil)
+	ns.Mark(unit, key and (key == PLAYERS and "player" or "mob"))
 end
 
 local function scanUnits()
@@ -347,7 +373,7 @@ end
 ---------------------------------------------------------------------------
 
 local function tick()
-	if not ns.db.enabled or not (next(byName) or ns.db.rares) then
+	if not ns.db.enabled or not (next(byName) or ns.db.rares or ns.db.playersEnemy or ns.db.playersAttack) then
 		ns.ClearMarks()
 	else
 		scanUnits()

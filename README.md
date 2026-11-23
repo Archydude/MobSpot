@@ -12,6 +12,8 @@ Type `/ms` (or `/mobspot`) for the options, or find them under Esc > Options > A
 
 **Scan rares automatically**, under the list, alerts you for any rare mob close by, on your list or not, with "(rare)" after its name. They don't go on the list.
 
+**Scan enemy-faction players** and **Scan players you can attack**, under it, alert you for players: any player of the other faction, or any player you can attack right now. All of them share one **Enemy players** line that says how many are close by, with a sound of its own (**Sound for players**) and a nameplate marker of its own (**Marker for players**: any of the markers, or none). Players don't alert in battlegrounds and arenas unless you turn on **Scan players in battlegrounds and arenas too**.
+
 Each mob on the list has a tick box to stop looking for it for a while without losing it, and an X to take it off. The list is shared by all your characters.
 
 ## How far it looks

@@ -223,6 +223,21 @@ local function buildMobs(y)
 	checkbox("Scan rares automatically",
 		"Alerts you for any rare mob close by, also ones that aren't on your list, and puts the marker over it. They don't go on the list.",
 		get, set):SetPoint("TOPLEFT", 16, y)
+	y = y - 30
+	get, set = setting("playersEnemy")
+	checkbox("Scan enemy-faction players",
+		"Alerts you when a player of the other faction is close by, flagged for PvP or not. All enemy players share one \"Enemy players\" line that says how many are close by.",
+		get, set):SetPoint("TOPLEFT", 16, y)
+	y = y - 30
+	get, set = setting("playersAttack")
+	checkbox("Scan players you can attack",
+		"Alerts you when a player you can attack right now is close by, whatever their faction. They share the same \"Enemy players\" line.",
+		get, set):SetPoint("TOPLEFT", 16, y)
+	y = y - 30
+	get, set = setting("playersPvp")
+	checkbox("Scan players in battlegrounds and arenas too",
+		"Without this, players don't alert inside battlegrounds and arenas, where enemies are everywhere.",
+		get, set):SetPoint("TOPLEFT", 40, y)
 	return y - 40
 end
 
@@ -307,35 +322,43 @@ local function buildAlert(y)
 	heading("Alert", y)
 	y = y - 30
 
-	local label = text(content, "GameFontHighlight", "Sound")
-	label:SetPoint("TOPLEFT", 22, y - 6)
-	local menu = CreateFrame("DropdownButton", nil, content, "WowStyle1DropdownTemplate")
-	menu:SetWidth(180)
-	menu:SetPoint("TOPLEFT", 90, y)
-	if menu.Text then menu.Text:SetFontObject("GameFontHighlight") end
-	local function radio(root, name, key)
-		root:CreateRadio(name, function() return ns.db.sound == key end, function()
-			ns.db.sound = key
-			ns.PlayAlertSound(key)
-		end)
-	end
-	menu:SetupMenu(function(_, root)
-		if root.SetScrollMode then root:SetScrollMode(SOUND_MENU_HEIGHT) end
-		root:CreateTitle("Game sounds")
-		for _, sound in ipairs(ns.SOUNDS) do radio(root, sound.name, sound.key) end
-		-- listed each time the menu opens, since other addons may add theirs later
-		local shared = ns.SharedSounds()
-		if #shared > 0 then
-			root:CreateDivider()
-			root:CreateTitle("Shared by your other addons")
-			for _, name in ipairs(shared) do radio(root, name, ns.SharedSoundKey(name)) end
+	-- A dropdown picking the sound saved under `setKey`; picking one plays it.
+	local function soundMenu(labelText, setKey)
+		local label = text(content, "GameFontHighlight", labelText)
+		label:SetPoint("TOPLEFT", 22, y - 6)
+		local menu = CreateFrame("DropdownButton", nil, content, "WowStyle1DropdownTemplate")
+		menu:SetWidth(180)
+		menu:SetPoint("TOPLEFT", 170, y)
+		if menu.Text then menu.Text:SetFontObject("GameFontHighlight") end
+		local function radio(root, name, key)
+			root:CreateRadio(name, function() return ns.db[setKey] == key end, function()
+				ns.db[setKey] = key
+				ns.PlayAlertSound(key)
+			end)
 		end
-	end)
-	table.insert(refreshers, function() menu:GenerateMenu() end)
+		menu:SetupMenu(function(_, root)
+			if root.SetScrollMode then root:SetScrollMode(SOUND_MENU_HEIGHT) end
+			root:CreateTitle("Game sounds")
+			for _, sound in ipairs(ns.SOUNDS) do radio(root, sound.name, sound.key) end
+			-- listed each time the menu opens, since other addons may add theirs later
+			local shared = ns.SharedSounds()
+			if #shared > 0 then
+				root:CreateDivider()
+				root:CreateTitle("Shared by your other addons")
+				for _, name in ipairs(shared) do radio(root, name, ns.SharedSoundKey(name)) end
+			end
+		end)
+		table.insert(refreshers, function() menu:GenerateMenu() end)
+		y = y - 36
+		return menu
+	end
+
+	local menu = soundMenu("Sound", "sound")
 	local test = button(content, "Test alert", 110, function() ns.TestAlert() end)
 	test:SetPoint("LEFT", menu, "RIGHT", 16, 0)
 	tooltip(test, "Test alert", "Shows the alert as it would look for a mob on your list. Same as /ms test.")
-	y = y - 36
+	tooltip(soundMenu("Sound for players", "playerSound"), "Sound for players",
+		"The sound of the Enemy players alert, so you can tell it from a mob's by ear.")
 
 	local again = text(content, "GameFontHighlight",
 		"While a mob stays close by it alerts only once. It alerts again when it has left and come back.",
@@ -381,7 +404,7 @@ local function buildMarker(y)
 
 	local get, set = setting("marker")
 	checkbox("Show a marker over the mob's nameplate",
-		"Shows a marker over a listed mob's nameplate for as long as it shows, so you can pick the mob out. Only you see it. Not in dungeons and raids, where the game keeps nameplates from addons.",
+		"Shows a marker over a listed mob's nameplate for as long as it shows, so you can pick the mob out. Enemy players you scan for get the marker picked under Marker for players. Only you see it. Not in dungeons and raids, where the game keeps nameplates from addons.",
 		get, set):SetPoint("TOPLEFT", 16, y)
 	y = y - 36
 
@@ -391,7 +414,7 @@ local function buildMarker(y)
 		fs:SetPoint("TOPLEFT", 22, y - 6)
 		local menu = CreateFrame("DropdownButton", nil, content, "WowStyle1DropdownTemplate")
 		menu:SetWidth(200)
-		menu:SetPoint("TOPLEFT", 110, y)
+		menu:SetPoint("TOPLEFT", 170, y)
 		if menu.Text then menu.Text:SetFontObject("GameFontHighlight") end
 		menu:SetupMenu(function(_, root)
 			for _, item in ipairs(list) do
@@ -406,12 +429,14 @@ local function buildMarker(y)
 		table.insert(refreshers, function() menu:GenerateMenu() end)
 		y = y - 40
 	end
-	choice("Marker", ns.MARKERS, "markerStyle", ns.DEFAULT_MARKER, function(m) return ns.MarkerIcon(m, 16) .. " " end)
+	local function icon(m) return ns.MarkerIcon(m, 16) .. " " end
+	choice("Marker", ns.MARKERS, "markerStyle", ns.DEFAULT_MARKER, icon)
+	choice("Marker for players", ns.PLAYER_MARKERS, "playerMarkerStyle", ns.DEFAULT_PLAYER_MARKER, icon)
 	choice("Animation", ns.MOTIONS, "markerMotion", ns.DEFAULT_MOTION)
 
 	local size = text(content, "GameFontHighlight", "Size")
 	size:SetPoint("TOPLEFT", 22, y - 2)
-	settingSlider(110, y, ns.MARKER_SIZE_MIN, ns.MARKER_SIZE_MAX, 2, "markerSize", function(v)
+	settingSlider(170, y, ns.MARKER_SIZE_MIN, ns.MARKER_SIZE_MAX, 2, "markerSize", function(v)
 		return v .. (v == 34 and " (default)" or "")
 	end)
 

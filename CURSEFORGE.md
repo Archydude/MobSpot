@@ -13,7 +13,7 @@ MobSpot
 
 **Summary**
 ```
-Alerts you when a mob on your list, or any rare, is close by. Add mobs with one key, by name or NPC ID, and get a sound, an on-screen alert and a marker over the mob.
+Alerts you when a mob on your list, any rare or an enemy player is close by. Add mobs with one key, by name or NPC ID, and get a sound, an on-screen alert and a marker over the mob.
 ```
 
 **Main category:** `Map & Minimap`
@@ -32,29 +32,28 @@ Alerts you when a mob on your list, or any rare, is close by. Add mobs with one 
 MobSpot keeps a list of the mobs you're looking for and alerts you the moment one of them is close by. Made for **WoW Forever**.
 
 ### Add mobs your way
-- **One key:** target a mob and press **Track/Untrack Target** to put it on the list. Press it again to take it off.
+- **One key:** target a mob and press **Track/Untrack Target** to put it on the list, or to take it off.
 - **By name or NPC ID:** type it on the options page, handy for a rare you haven't met yet.
 - **Every rare:** turn on **Scan rares automatically** and any rare close by alerts you too.
-- The list is shared by all your characters.
+- **Enemy players:** turn on a player scan and enemy players close by alert as one line with a total, with their own sound and marker. Off in battlegrounds and arenas unless you want it.
 
 ### Spotted as soon as it shows
-- A listed mob is spotted the moment its nameplate shows, up to 40 yards away. A slider sets how far.
-- Rares the game marks on the map are spotted too, with how many yards away they are.
+- A listed mob is spotted the moment its nameplate shows, up to 40 yards away.
+- Rares the game marks on the map are spotted too, with their distance in yards.
 - MobSpot can turn enemy nameplates on for you and keep them on.
 
 ### An alert you won't miss
-- The mob's name, big at the top of the screen, for up to 3 different mobs at once. It can stay for as long as the mob is in range, and you can drag it anywhere in Edit Mode.
-- A sound that plays even with sound effects turned down: a dozen game alerts, or any sound your other addons share.
-- A chat line and a flash of the screen edges.
+- The mob's name, big at the top of the screen, up to 3 mobs at once. It can stay while the mob is in range, and you can drag it anywhere in Edit Mode.
+- A sound that plays even with sound effects turned down (a dozen game alerts, or any your other addons share), a chat line and a flash of the screen edges.
 - **Several of the same mob:** with **Alert for each mob of the same name**, every one that comes close gets its own alert, with the total in range on screen.
-- A mob that leaves and comes back alerts again. Looking away for up to a minute doesn't count as leaving.
+- A mob that leaves and comes back alerts again; looking away for under a minute doesn't count.
 
 ### A marker over the mob
-A skull over its nameplate to pick it out of a crowd, or one of a dozen other markers, in any size, bobbing, pulsing, spinning or still. Only you see it.
+A skull over its nameplate, or one of a dozen other markers, in any size, bobbing, pulsing, spinning or still. Only you see it.
 
 ### Good to know
 - **/ms** or the minimap button opens the options.
-- Only mobs: the game doesn't let addons see herbs, ore or other things you gather.
+- No herbs or ore: the game doesn't let addons see things you gather.
 - There's no marker in dungeons and raids.
 
 This addon was made with AI.
@@ -67,11 +66,11 @@ This addon was made with AI.
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.3.0.zip`
+**File:** `dist\MobSpot-1.4.0.zip`
 
 **Display name**
 ```
-MobSpot 1.3.0
+MobSpot 1.4.0
 ```
 
 **Release type:** `Release`
@@ -80,6 +79,11 @@ MobSpot 1.3.0
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.4.0
+- MobSpot can alert you for enemy players. Two new options under the mob list: **Scan enemy-faction players** and **Scan players you can attack**. Enemy players close by share one "Enemy players" line that says how many there are.
+- Enemy players have a sound of their own (**Sound for players**) and a nameplate marker of their own (**Marker for players**), so you can tell them from mobs.
+- Players don't alert in battlegrounds and arenas unless you turn on **Scan players in battlegrounds and arenas too**.
+
 1.3.0
 - You can move the alert message: open the game's Edit Mode and drag the **MobSpot alert** box to where you want it. Right-click the box to put it back.
 

@@ -65,6 +65,11 @@ for _, m in ipairs(ALL) do
 	end
 end
 
+-- The choices for the marker over enemy players: the same pictures, or none.
+ns.PLAYER_MARKERS = { { key = "none", name = "No marker" } }
+for _, m in ipairs(ns.MARKERS) do ns.PLAYER_MARKERS[#ns.PLAYER_MARKERS + 1] = m end
+ns.DEFAULT_PLAYER_MARKER = "cross"
+
 function ns.MarkerInfo(key)
 	for _, m in ipairs(ns.MARKERS) do
 		if m.key == key then return m end
@@ -74,6 +79,7 @@ end
 
 -- "|A...|a" or "|T...|t" text that shows the marker's picture in a menu line.
 function ns.MarkerIcon(m, size)
+	if not m.file then return "" end -- "No marker"
 	if m.atlas then return ("|A:%s:%d:%d|a"):format(m.atlas, size, size) end
 	return ("|T%s:%d:%d|t"):format(m.file, size, size)
 end
@@ -124,8 +130,9 @@ local function unsnap(icon)
 	end
 end
 
+-- marker.kind is "player" over an enemy player, which has a picture of its own; else a mob's.
 local function style(marker)
-	local m = ns.MarkerInfo(ns.db.markerStyle)
+	local m = ns.MarkerInfo(marker.kind == "player" and ns.db.playerMarkerStyle or ns.db.markerStyle)
 	local size = ns.db.markerSize
 	marker:SetSize(size, size)
 	marker.size = size
@@ -182,17 +189,24 @@ local function hide(unit)
 	marker:Hide()
 end
 
--- Shows the marker over `unit`'s nameplate when `listed` is true, else takes it off.
-function ns.Mark(unit, listed)
-	if not (listed and ns.db.marker) then
+-- Shows the marker over `unit`'s nameplate: the mobs' for `kind` "mob", the players' for
+-- "player". Takes it off for nil, or when that kind has no marker.
+function ns.Mark(unit, kind)
+	if not (kind and ns.db.marker) or (kind == "player" and ns.db.playerMarkerStyle == "none") then
 		hide(unit)
 		return
 	end
-	if shown[unit] then return end
-	local plate = C_NamePlate.GetNamePlateForUnit(unit)
-	if not plate or plate:IsForbidden() then return end
-	local marker = markerFor(plate)
-	shown[unit] = marker
+	local marker = shown[unit]
+	if not marker then
+		local plate = C_NamePlate.GetNamePlateForUnit(unit)
+		if not plate or plate:IsForbidden() then return end
+		marker = markerFor(plate)
+		shown[unit] = marker
+	end
+	if marker.kind ~= kind then -- nameplates are handed from one unit to the next
+		marker.kind = kind
+		style(marker)
+	end
 	marker:Show()
 end
 
@@ -205,7 +219,7 @@ ns.On("NAME_PLATE_UNIT_REMOVED", hide)
 ns.Listen("SettingChanged", function(name)
 	if (name == "marker" and not ns.db.marker) or (name == "enabled" and not ns.db.enabled) then
 		ns.ClearMarks()
-	elseif name == "markerStyle" or name == "markerSize" or name == "markerMotion" then
+	elseif name == "markerStyle" or name == "playerMarkerStyle" or name == "markerSize" or name == "markerMotion" then
 		for _, marker in ipairs(frames) do style(marker) end
 	end
 end)

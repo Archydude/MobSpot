@@ -308,24 +308,26 @@ local function detailText(how, yards, count)
 	return count .. " " .. where(how, yards)
 end
 
-local function show(name, how, yards, testing, count, key)
+local function show(name, how, yards, testing, count, key, sound)
 	local detail = detailText(how, yards, count)
 	if ns.db.screenText then showMessage(name, detail, key, count) end
 	if ns.db.chatLine then
 		ns.Print("|cffff8040" .. name .. "|r" .. (count and ": " or " ") .. detail .. (testing and " (test)." or "."))
 	end
-	ns.PlayAlertSound(ns.db.sound)
+	ns.PlayAlertSound(sound)
 	if ns.db.flash then flashScreen() end
 end
 
--- A listed mob or a rare (list key `key`) was found. `how` is "near" or "map" (with `yards`).
--- `count` is how many of it are in range, when each one alerts on its own.
+-- A listed mob, a rare or enemy players (list key `key`) were found. `how` is "near" or "map"
+-- (with `yards`). `count` is how many are in range, for the alerts that show a total.
 function ns.Alert(key, mob, how, yards, count)
-	if mob then show(mob.rare and (mob.name .. " (rare)") or mob.name, how, yards, false, count, key) end
+	if not mob then return end
+	local name = mob.rare and (mob.name .. " (rare)") or mob.name
+	show(name, how, yards, false, count, key, mob.players and ns.db.playerSound or ns.db.sound)
 end
 
 function ns.TestAlert()
-	show("Test Mob", "near", nil, true)
+	show("Test Mob", "near", nil, true, nil, nil, ns.db.sound)
 end
 
 -- After each scan: a kept message goes once its mob is out of range, and a message with a total
