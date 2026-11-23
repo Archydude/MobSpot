@@ -34,12 +34,12 @@ MobSpot keeps a list of the mobs you're looking for and alerts you the moment on
 ### Add mobs your way
 - **One key:** target a mob and press **Track/Untrack Target** to put it on the list. Press it again to take it off.
 - **By name or NPC ID:** type it on the options page, handy for a rare you haven't met yet.
-- **Every rare:** turn on **Scan rares automatically** and any rare close by alerts you too, no list needed.
+- **Every rare:** turn on **Scan rares automatically** and any rare close by alerts you too.
 - The list is shared by all your characters.
 
 ### Spotted as soon as it shows
 - A listed mob is spotted the moment its nameplate shows, up to 40 yards away. A slider sets how far.
-- Rares the game marks on the map or minimap are spotted too, with how many yards away they are.
+- Rares the game marks on the map are spotted too, with how many yards away they are.
 - MobSpot can turn enemy nameplates on for you and keep them on.
 
 ### An alert you won't miss
@@ -50,7 +50,7 @@ MobSpot keeps a list of the mobs you're looking for and alerts you the moment on
 - A mob that leaves and comes back alerts again. Looking away for up to a minute doesn't count as leaving.
 
 ### A marker over the mob
-A skull over its nameplate, so you can pick it out of a crowd, or one of a dozen other markers, in any size, bobbing, pulsing, spinning or still. Only you see it.
+A skull over its nameplate to pick it out of a crowd, or one of a dozen other markers, in any size, bobbing, pulsing, spinning or still. Only you see it.
 
 ### Good to know
 - **/ms** or the minimap button opens the options.
