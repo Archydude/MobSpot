@@ -6,6 +6,7 @@
 --   Scan.lua      finding listed mobs: nameplates and the map's markers
 --   Alert.lua     what the player sees and hears
 --   Marker.lua    a marker over a listed mob's nameplate
+--   Distance.lua  /ms distance, a test of how far the target is
 --   Options.lua   Esc > Options > AddOns > MobSpot
 --   Minimap.lua   minimap button and addon compartment entry
 
@@ -18,6 +19,11 @@ ns.PREFIX = "|cff33ff99MobSpot:|r "
 
 function ns.Print(text)
 	DEFAULT_CHAT_FRAME:AddMessage(ns.PREFIX .. text)
+end
+
+-- A line in chat only while /ms debug is on, for finding out what the game reports.
+function ns.Debug(text)
+	if ns.debug then DEFAULT_CHAT_FRAME:AddMessage("|cff808080MobSpot debug:|r " .. text) end
 end
 
 -- A value the addon can read: nil for the game's hidden ("secret") values, which can't be compared.
@@ -38,8 +44,9 @@ local DEFAULTS = {
 	sound = "raidwarning",   -- a key of ns.SOUNDS
 	radius = false,          -- the scan radius the player picked, in yards; false until they pick one
 	nameplates = false,      -- true once the player had MobSpot turn on enemy nameplates
-	alertAgain = 30,         -- seconds a mob has to be out of reach before it alerts again
+	alertEach = false,       -- every mob of the same name alerts on its own, not only the first
 	screenText = true,       -- big message at the top of the screen
+	keepMessage = false,     -- that message stays for as long as the mob is in range
 	chatLine = true,         -- a line in chat
 	flash = true,            -- flash the screen edges, and the game's taskbar icon
 	marker = true,           -- a marker over a listed mob's nameplate
@@ -333,6 +340,7 @@ local function help()
 	print("  /ms remove <name or ID> - take a mob off the list")
 	print("  /ms list - show the list")
 	print("  /ms test - show a test alert")
+	print("  /ms distance - test how far your target is and whether its nameplate shows")
 	print("  /ms minimap - show or hide the minimap button")
 end
 
@@ -379,6 +387,11 @@ SlashCmdList.MOBSPOT = function(msg)
 		list()
 	elseif command == "test" then
 		ns.TestAlert()
+	elseif command == "distance" or command == "range" then
+		ns.TestDistance()
+	elseif command == "debug" then
+		ns.debug = not ns.debug
+		ns.Print(ns.debug and "debug lines are on until you reload or type /ms debug again." or "debug lines are off.")
 	elseif command == "minimap" then
 		ns.SetMinimapShown(ns.db.minimap.hide)
 		ns.Print(ns.db.minimap.hide and "minimap button hidden." or "minimap button shown.")

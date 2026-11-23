@@ -235,7 +235,7 @@ local function buildRadius(y)
 	y = y - 26
 	local about = text(content, "GameFontHighlight",
 		"A mob is spotted as soon as its nameplate shows, so the radius is the game's nameplate distance. "
-			.. "It changes how far away every nameplate shows, and the game may keep it lower than you pick.",
+			.. "It changes how far away every nameplate shows. The game shows none further away than 40 yards.",
 		WIDTH - 20)
 	about:SetPoint("TOPLEFT", 20, y)
 	y = y - 44
@@ -338,20 +338,25 @@ local function buildAlert(y)
 	y = y - 36
 
 	local again = text(content, "GameFontHighlight",
-		"While a mob stays close by it alerts only once. It alerts again after it has been out of reach for:",
+		"While a mob stays close by it alerts only once. It alerts again when it has left and come back.",
 		WIDTH - 20)
 	again:SetPoint("TOPLEFT", 20, y)
-	y = y - 24
-	settingSlider(20, y, ns.ALERT_AGAIN_MIN, ns.ALERT_AGAIN_MAX, 5, "alertAgain", function(s)
-		return s < 60 and (s .. " seconds")
-			or (s % 60 == 0 and (s / 60 .. (s == 60 and " minute" or " minutes")))
-			or string.format("%d min %d s", math.floor(s / 60), s % 60)
-	end)
-	y = y - 36
+	y = y - 28
 
-	local get, set = setting("screenText")
+	local get, set = setting("alertEach")
+	checkbox("Alert for each mob of the same name",
+		"Every mob of the same name that comes close gets its own alert, which says how many are in range. Without this, one alert covers them all until none of them is in range any more.",
+		get, set):SetPoint("TOPLEFT", 16, y)
+	y = y - 34
+
+	get, set = setting("screenText")
 	checkbox("Message at the top of the screen", "The mob's name and how close it is, for a few seconds.", get, set)
 		:SetPoint("TOPLEFT", 16, y)
+	y = y - 30
+	get, set = setting("keepMessage")
+	checkbox("Keep the message on screen, and 1 minute more when you look away",
+		"The message stays for as long as the mob is in range, instead of fading after a few seconds. When you look away from the mob, the time is extended by 1 minute.",
+		get, set):SetPoint("TOPLEFT", 40, y)
 	y = y - 30
 	get, set = setting("chatLine")
 	checkbox("Line in chat", "The same, in your chat window, so you can look back at it.", get, set)

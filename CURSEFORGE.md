@@ -29,32 +29,33 @@ Alerts you when a mob on your list, or any rare, is close by. Add mobs with one 
 ```markdown
 ## Never miss the mob you're hunting
 
-MobSpot keeps a list of the mobs you're looking for and alerts you the moment one of them is close by. Put a rare or a quest mob on the list and go about your business. Made for **WoW Forever**.
+MobSpot keeps a list of the mobs you're looking for and alerts you the moment one of them is close by. Made for **WoW Forever**.
 
 ### Add mobs your way
 - **One key:** target a mob and press **Track/Untrack Target** to put it on the list. Press it again to take it off.
 - **By name or NPC ID:** type it on the options page, handy for a rare you haven't met yet.
-- **Every rare, automatically:** turn on **Scan rares automatically** and any rare close by alerts you too, no list needed.
+- **Every rare:** turn on **Scan rares automatically** and any rare close by alerts you too, no list needed.
 - The list is shared by all your characters.
 
 ### Spotted as soon as it shows
-- A listed mob is spotted the moment its nameplate shows. The scan radius is your nameplate distance, 30 to 100 yards, set with a slider.
-- Rares the game marks on the map or minimap are spotted too, and the alert says how many yards away they are.
-- MobSpot can turn enemy nameplates on for you, and keeps them the way you set them.
+- A listed mob is spotted the moment its nameplate shows, up to 40 yards away. A slider sets how far.
+- Rares the game marks on the map or minimap are spotted too, with how many yards away they are.
+- MobSpot can turn enemy nameplates on for you and keep them on.
 
 ### An alert you won't miss
-- The mob's name and how close it is, big at the top of the screen.
+- The mob's name, big at the top of the screen, for up to 3 different mobs at once. It can stay for as long as the mob is in range.
 - A sound that plays even with sound effects turned down: a dozen game alerts, or any sound your other addons share.
 - A chat line and a flash of the screen edges.
-- You pick how soon the same mob can alert again.
+- **Several of the same mob:** with **Alert for each mob of the same name**, every one that comes close gets its own alert, with the total in range on screen.
+- A mob that leaves and comes back alerts again. Looking away for up to a minute doesn't count as leaving.
 
 ### A marker over the mob
-A skull over its nameplate, so you can pick it out of a crowd. Or a red cross, star, moon, green arrow, map pin, quest mark, treasure chest and more, in any size, bobbing, pulsing, spinning or still. Only you see it.
+A skull over its nameplate, so you can pick it out of a crowd, or one of a dozen other markers, in any size, bobbing, pulsing, spinning or still. Only you see it.
 
 ### Good to know
 - **/ms** or the minimap button opens the options.
 - Only mobs: the game doesn't let addons see herbs, ore or other things you gather.
-- Mobs are spotted no further out than nameplates or map markers show. There's no marker in dungeons and raids.
+- There's no marker in dungeons and raids.
 
 This addon was made with AI.
 
@@ -66,11 +67,11 @@ This addon was made with AI.
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.1.1.zip`
+**File:** `dist\MobSpot-1.2.0.zip`
 
 **Display name**
 ```
-MobSpot 1.1.1
+MobSpot 1.2.0
 ```
 
 **Release type:** `Release`
@@ -79,6 +80,16 @@ MobSpot 1.1.1
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.2.0
+- New option: **Alert for each mob of the same name**. Every mob of the same name that comes close gets its own alert, and the message shows how many of them are in range, kept up to date while it's on screen.
+- New option: **Keep the message on screen, and 1 minute more when you look away**. The message stays for as long as the mob is in range, instead of fading after a few seconds.
+- The message at the top of the screen shows up to 3 different mobs at once, one under the other.
+- Turning the camera away from a mob no longer sets off its alert again when you turn back within a minute.
+- A mob that leaves and comes back alerts again right away. The slider for how soon it can alert again is gone.
+- The scan radius slider goes from 30 to 40 yards, since the game shows no nameplate further away than 40. A higher pick is brought down to 40.
+- The alert says "close by", without the yards. A mob found by its map marker still says how many yards away it is.
+- New command **/ms distance**: a test of how far away your target is and whether its nameplate shows.
+
 1.1.1
 - Fixed an error when opening the options during combat ("tried to call the protected function 'OpenSettingsPanel()'"). The options now open as soon as the fight ends.
 

@@ -69,30 +69,82 @@ end
 -- Message and flash
 ---------------------------------------------------------------------------
 
-local message, flash
+local flash
 
-local function buildMessage()
-	message = CreateFrame("Frame", nil, UIParent)
-	message:SetSize(700, 90)
-	message:SetPoint("TOP", 0, -140)
-	message:SetFrameStrata("HIGH")
-	message:EnableMouse(false)
-	message:Hide()
+-- The message is up to MAX_MESSAGES rows under one another, one per mob name, the oldest on top.
+local MAX_MESSAGES = 3
+local MESSAGE_TOP = -140 -- the first row, from the top of the screen
+local MESSAGE_ROW = 58   -- from one row to the next
+local rows = {}          -- every row built so far
+local showing = {}       -- the rows on screen, top to bottom
 
-	message.title = message:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
-	message.title:SetPoint("TOP")
-	message.title:SetTextColor(1, 0.5, 0.25)
-	message.detail = message:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
-	message.detail:SetPoint("TOP", message.title, "BOTTOM", 0, -6)
+local function layout()
+	for i, row in ipairs(showing) do
+		row:ClearAllPoints()
+		row:SetPoint("TOP", UIParent, "TOP", 0, MESSAGE_TOP - (i - 1) * MESSAGE_ROW)
+	end
+end
 
-	local fade = message:CreateAnimationGroup()
-	local alpha = fade:CreateAnimation("Alpha")
-	alpha:SetFromAlpha(1)
-	alpha:SetToAlpha(0)
-	alpha:SetStartDelay(SHOW_FOR)
-	alpha:SetDuration(FADE)
-	fade:SetScript("OnFinished", function() message:Hide() end)
-	message.fade = fade
+local function hideRow(row)
+	row:Hide()
+	row.id, row.key, row.kept, row.leaving = nil, nil, nil, nil
+	for i, other in ipairs(showing) do
+		if other == row then
+			table.remove(showing, i)
+			break
+		end
+	end
+	layout()
+end
+
+local function buildRow()
+	local row = CreateFrame("Frame", nil, UIParent)
+	row:SetSize(700, MESSAGE_ROW)
+	row:SetFrameStrata("HIGH")
+	row:EnableMouse(false)
+	row:Hide()
+
+	row.title = row:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+	row.title:SetPoint("TOP")
+	row.title:SetTextColor(1, 0.5, 0.25)
+	row.detail = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+	row.detail:SetPoint("TOP", row.title, "BOTTOM", 0, -6)
+
+	local function fader(delay)
+		local fade = row:CreateAnimationGroup()
+		local alpha = fade:CreateAnimation("Alpha")
+		alpha:SetFromAlpha(1)
+		alpha:SetToAlpha(0)
+		alpha:SetStartDelay(delay)
+		alpha:SetDuration(FADE)
+		fade:SetScript("OnFinished", function() hideRow(row) end)
+		return fade
+	end
+	row.fade = fader(SHOW_FOR) -- after an alert
+	row.fadeNow = fader(0)     -- when a kept message's mob is gone
+	rows[#rows + 1] = row
+	return row
+end
+
+-- The row for the mob `id`: the one it already has, else a free one, else the oldest one's.
+local function rowFor(id)
+	for _, row in ipairs(showing) do
+		if row.id == id then return row end
+	end
+	local row
+	if #showing >= MAX_MESSAGES then
+		row = table.remove(showing, 1)
+	else
+		for _, other in ipairs(rows) do
+			if not other:IsShown() then
+				row = other
+				break
+			end
+		end
+		row = row or buildRow()
+	end
+	showing[#showing + 1] = row
+	return row
 end
 
 local function buildFlash()
@@ -115,14 +167,22 @@ local function buildFlash()
 	flash.pulse = pulse
 end
 
-local function showMessage(title, detail)
-	if not message then buildMessage() end
-	message.title:SetText(title)
-	message.detail:SetText(detail)
-	message.fade:Stop()
-	message:SetAlpha(1)
-	message:Show()
-	message.fade:Play()
+-- Shows the message. With `key` (the mob it's about) and "keep the message" on it stays until
+-- none of that mob is in range; else it fades after a few seconds. `count` is the total it
+-- shows, kept up to date while it's on screen.
+local function showMessage(title, detail, key, count)
+	local id = key or title
+	local row = rowFor(id)
+	row.title:SetText(title)
+	row.detail:SetText(detail)
+	row.fade:Stop()
+	row.fadeNow:Stop()
+	row:SetAlpha(1)
+	row:Show()
+	row.id, row.key, row.count, row.leaving = id, key, count, nil
+	row.kept = key ~= nil and ns.db.keepMessage
+	if not row.kept then row.fade:Play() end
+	layout()
 end
 
 local function flashScreen()
@@ -140,29 +200,64 @@ end
 -- The alert
 ---------------------------------------------------------------------------
 
--- "close by (within 40 yards)" or "32 yards away".
+-- "close by" or "32 yards away".
 local function where(how, yards)
 	if how == "map" and yards then
 		return math.floor(yards + 0.5) .. " yards away"
 	end
-	return "close by (within " .. math.floor(ns.Radius() + 0.5) .. " yards)"
+	return "close by"
 end
 
-local function show(name, how, yards, testing)
-	local detail = where(how, yards)
-	if ns.db.screenText then showMessage(name, "is " .. detail) end
+-- "is close by", or with a total "3 close by".
+local function detailText(how, yards, count)
+	if not count then return "is " .. where(how, yards) end
+	if how == "map" and yards then return count .. " in range, this one " .. where(how, yards) end
+	return count .. " " .. where(how, yards)
+end
+
+local function show(name, how, yards, testing, count, key)
+	local detail = detailText(how, yards, count)
+	if ns.db.screenText then showMessage(name, detail, key, count) end
 	if ns.db.chatLine then
-		ns.Print("|cffff8040" .. name .. "|r is " .. detail .. (testing and " (test)." or "."))
+		ns.Print("|cffff8040" .. name .. "|r" .. (count and ": " or " ") .. detail .. (testing and " (test)." or "."))
 	end
 	ns.PlayAlertSound(ns.db.sound)
 	if ns.db.flash then flashScreen() end
 end
 
--- A listed mob or a rare was found. `how` is "near" or "map" (with `yards`).
-function ns.Alert(mob, how, yards)
-	if mob then show(mob.rare and (mob.name .. " (rare)") or mob.name, how, yards) end
+-- A listed mob or a rare (list key `key`) was found. `how` is "near" or "map" (with `yards`).
+-- `count` is how many of it are in range, when each one alerts on its own.
+function ns.Alert(key, mob, how, yards, count)
+	if mob then show(mob.rare and (mob.name .. " (rare)") or mob.name, how, yards, false, count, key) end
 end
 
 function ns.TestAlert()
 	show("Test Mob", "near", nil, true)
 end
+
+-- After each scan: a kept message goes once its mob is out of range, and a message with a total
+-- shows the total as it is now.
+-- A kept message that started to go stays after all when its mob is back in range.
+local function scanned(row)
+	local count = ns.InRange(row.key)
+	if row.kept and (count == 0 or not ns.db.keepMessage) then
+		row.kept, row.leaving = false, true
+		row.fadeNow:Play()
+		return
+	end
+	if row.leaving and count > 0 and ns.db.keepMessage then
+		row.fadeNow:Stop()
+		row:SetAlpha(1)
+		row.kept, row.leaving = true, nil
+	end
+	if row.count and count > 0 and count ~= row.count then
+		row.count = count
+		row.detail:SetText(detailText("near", nil, count))
+	end
+end
+
+ns.Listen("Scanned", function()
+	for _, row in ipairs(showing) do
+		if row.key then scanned(row) end
+	end
+end)

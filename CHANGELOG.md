@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0
+- New option: **Alert for each mob of the same name**. Every mob of the same name that comes close gets its own alert, and the message shows how many of them are in range, kept up to date while it's on screen.
+- New option: **Keep the message on screen, and 1 minute more when you look away**. The message stays for as long as the mob is in range, instead of fading after a few seconds.
+- The message at the top of the screen shows up to 3 different mobs at once, one under the other.
+- Turning the camera away from a mob no longer sets off its alert again when you turn back within a minute.
+- A mob that leaves and comes back alerts again right away. The slider for how soon it can alert again is gone.
+- The scan radius slider goes from 30 to 40 yards, since the game shows no nameplate further away than 40. A higher pick is brought down to 40.
+- The alert says "close by", without the yards. A mob found by its map marker still says how many yards away it is.
+- New command **/ms distance**: a test of how far away your target is and whether its nameplate shows.
+
 ## 1.1.1
 - Fixed an error when opening the options during combat ("tried to call the protected function 'OpenSettingsPanel()'"). The options now open as soon as the fight ends.
 
