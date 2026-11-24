@@ -66,11 +66,11 @@ This addon was made with AI.
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.4.0.zip`
+**File:** `dist\MobSpot-1.4.1.zip`
 
 **Display name**
 ```
-MobSpot 1.4.0
+MobSpot 1.4.1
 ```
 
 **Release type:** `Release`
@@ -79,6 +79,10 @@ MobSpot 1.4.0
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.4.1
+- Fixed: enemy player range tracking handles unflagged players and hidden unit values cleanly without Lua errors.
+- Fixed: screen-edge alert flashes clean up properly, nameplate markers behave cleanly alongside other nameplate addons, and the minimap button starts at its own angle without overlapping other addons.
+
 1.4.0
 - MobSpot can alert you for enemy players. Two new options under the mob list: **Scan enemy-faction players** and **Scan players you can attack**. Enemy players close by share one "Enemy players" line that says how many there are.
 - Enemy players have a sound of their own (**Sound for players**) and a nameplate marker of their own (**Marker for players**), so you can tell them from mobs.

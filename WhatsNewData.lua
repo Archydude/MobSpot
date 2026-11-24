@@ -2,10 +2,14 @@
 ArchdudeWhatsNew:Register("MobSpot", {
 	title = "MobSpot",
 	icon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
-	version = "1.4.0",
+	version = "1.4.1",
 	seen = "MobSpotWhatsNew",
 	saved = { "MobSpotDB" },
 	changes = {
+		{ "1.4.1",
+			"Fixed: enemy player range tracking handles unflagged players and hidden unit values cleanly without Lua errors.",
+			"Fixed: screen-edge alert flashes clean up properly, nameplate markers behave cleanly alongside other nameplate addons, and the minimap button starts at its own angle without overlapping other addons.",
+		},
 		{ "1.4.0",
 			"MobSpot can alert you for enemy players. Two new options under the mob list: |cffffd100Scan enemy-faction players|r and |cffffd100Scan players you can attack|r. Enemy players close by share one \"Enemy players\" line that says how many there are.",
 			"Enemy players have a sound of their own (|cffffd100Sound for players|r) and a nameplate marker of their own (|cffffd100Marker for players|r), so you can tell them from mobs.",
