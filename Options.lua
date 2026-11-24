@@ -11,10 +11,21 @@ local SOUND_MENU_HEIGHT = 400 -- the sound menu scrolls past this
 
 local category
 local content
-local refreshers = {} -- functions that bring one control up to date with the settings
+local refreshers = {} -- { tag = string, fn = function }
+
+local function addRefresher(tag, fn)
+	refreshers[#refreshers + 1] = { tag = tag, fn = fn }
+end
 
 local function refreshAll()
-	for _, refresh in ipairs(refreshers) do refresh() end
+	for _, entry in ipairs(refreshers) do entry.fn() end
+end
+
+local function refreshTag(tag)
+	if not (content and content:IsVisible()) then return end
+	for _, entry in ipairs(refreshers) do
+		if entry.tag == tag then entry.fn() end
+	end
 end
 
 -- The game doesn't let addons open its settings during combat, so a request then waits for the fight to end.
@@ -72,7 +83,7 @@ local function heading(value, y)
 	return fs
 end
 
-local function checkbox(label, help, get, set)
+local function checkbox(label, help, get, set, tag)
 	local check = CreateFrame("CheckButton", nil, content, "UICheckButtonTemplate")
 	local fs = text(check, "GameFontHighlight", label)
 	fs:SetPoint("LEFT", check, "RIGHT", 4, 1)
@@ -80,7 +91,7 @@ local function checkbox(label, help, get, set)
 	check:SetHitRectInsets(0, -fs:GetStringWidth() - 8, 0, 0)
 	check:SetScript("OnClick", function(self) set(self:GetChecked() and true or false) end)
 	tooltip(check, label, help)
-	table.insert(refreshers, function() check:SetChecked(get()) end)
+	addRefresher(tag, function() check:SetChecked(get()) end)
 	return check
 end
 
@@ -88,7 +99,7 @@ local function setting(key)
 	return function() return ns.db[key] end, function(v)
 		ns.db[key] = v
 		ns.Fire("SettingChanged", key)
-	end
+	end, key
 end
 
 -- A slider for the setting `key`, from `minValue` to `maxValue` in steps of `step`, at x, y.
@@ -108,7 +119,7 @@ local function settingSlider(x, y, minValue, maxValue, step, key, describe)
 		ns.db[key] = v
 		ns.Fire("SettingChanged", key)
 	end, slider)
-	table.insert(refreshers, function()
+	addRefresher(key, function()
 		syncing = true
 		slider:SetValue(ns.db[key])
 		syncing = false
@@ -209,35 +220,33 @@ local function buildMobs(y)
 	mobEmpty = text(content, "GameFontDisable", nil, WIDTH - 40)
 	mobEmpty:SetPoint("TOPLEFT", scrollBox, "TOPLEFT", 8, -6)
 
-	table.insert(refreshers, function()
+	addRefresher("mobs", function()
 		mobList:SetDataProvider(CreateDataProvider(ns.SortedMobs()), ScrollBoxConstants.RetainScrollPosition)
+		mobEmpty:SetShown(ns.MobCount() == 0)
+	end)
+	addRefresher("bindings", function()
 		local key = ns.BoundKey(ns.BIND_ADD)
 		mobEmpty:SetText("Nothing here yet. Target a mob and press "
 			.. (key and key or "your MobSpot key (set it under Keybinds below)")
 			.. ", or type its name or ID above.")
-		mobEmpty:SetShown(ns.MobCount() == 0)
 	end)
 	y = y - ROW_HEIGHT * LIST_ROWS - 20
 
-	local get, set = setting("rares")
 	checkbox("Scan rares automatically",
 		"Alerts you for any rare mob close by, also ones that aren't on your list, and puts the marker over it. They don't go on the list.",
-		get, set):SetPoint("TOPLEFT", 16, y)
+		setting("rares")):SetPoint("TOPLEFT", 16, y)
 	y = y - 30
-	get, set = setting("playersEnemy")
 	checkbox("Scan enemy-faction players",
 		"Alerts you when a player of the other faction is close by, flagged for PvP or not. All enemy players share one \"Enemy players\" line that says how many are close by.",
-		get, set):SetPoint("TOPLEFT", 16, y)
+		setting("playersEnemy")):SetPoint("TOPLEFT", 16, y)
 	y = y - 30
-	get, set = setting("playersAttack")
 	checkbox("Scan players you can attack",
 		"Alerts you when a player you can attack right now is close by, whatever their faction. They share the same \"Enemy players\" line.",
-		get, set):SetPoint("TOPLEFT", 16, y)
+		setting("playersAttack")):SetPoint("TOPLEFT", 16, y)
 	y = y - 30
-	get, set = setting("playersPvp")
 	checkbox("Scan players in battlegrounds and arenas too",
 		"Without this, players don't alert inside battlegrounds and arenas, where enemies are everywhere.",
-		get, set):SetPoint("TOPLEFT", 40, y)
+		setting("playersPvp")):SetPoint("TOPLEFT", 40, y)
 	return y - 40
 end
 
@@ -274,7 +283,7 @@ local function buildRadius(y)
 		end
 		showValue()
 	end, slider)
-	table.insert(refreshers, function()
+	addRefresher("radius", function()
 		syncing = true
 		slider:SetValue(ns.Radius())
 		syncing = false
@@ -287,7 +296,7 @@ local function buildRadius(y)
 	local turnOn = button(content, "Turn on nameplates", 170, function() ns.TurnOnNameplates() end)
 	turnOn:SetPoint("TOPRIGHT", content, "TOPLEFT", WIDTH, y + 4)
 	tooltip(turnOn, "Turn on nameplates", "Shows enemy nameplates, also out of combat, so MobSpot can spot mobs by them.")
-	table.insert(refreshers, function()
+	addRefresher("nameplates", function()
 		if ns.NameplatesOn() then
 			status:SetText("|cff40ff40Enemy nameplates are on.|r")
 			turnOn:Hide()
@@ -306,10 +315,9 @@ end
 local function buildOther(y)
 	heading("Map markers", y)
 	y = y - 30
-	local get, set = setting("mapMarkers")
 	local markers = checkbox("Mobs the game marks on the map",
 		"Rare mobs the game puts a marker on, on the map or minimap, are spotted within your scan radius, and the alert says how far away they are.",
-		get, set)
+		setting("mapMarkers"))
 	markers:SetPoint("TOPLEFT", 16, y)
 	return y - 44
 end
@@ -348,7 +356,7 @@ local function buildAlert(y)
 				for _, name in ipairs(shared) do radio(root, name, ns.SharedSoundKey(name)) end
 			end
 		end)
-		table.insert(refreshers, function() menu:GenerateMenu() end)
+		addRefresher(setKey, function() menu:GenerateMenu() end)
 		y = y - 36
 		return menu
 	end
@@ -366,27 +374,22 @@ local function buildAlert(y)
 	again:SetPoint("TOPLEFT", 20, y)
 	y = y - 28
 
-	local get, set = setting("alertEach")
 	checkbox("Alert for each mob of the same name",
 		"Every mob of the same name that comes close gets its own alert, which says how many are in range. Without this, one alert covers them all until none of them is in range any more.",
-		get, set):SetPoint("TOPLEFT", 16, y)
+		setting("alertEach")):SetPoint("TOPLEFT", 16, y)
 	y = y - 34
 
-	get, set = setting("screenText")
-	checkbox("Message at the top of the screen", "The mob's name and how close it is, for a few seconds. To move it, open the game's Edit Mode and drag the MobSpot alert box.", get, set)
+	checkbox("Message at the top of the screen", "The mob's name and how close it is, for a few seconds. To move it, open the game's Edit Mode and drag the MobSpot alert box.", setting("screenText"))
 		:SetPoint("TOPLEFT", 16, y)
 	y = y - 30
-	get, set = setting("keepMessage")
 	checkbox("Keep the message on screen, and 1 minute more when you look away",
 		"The message stays for as long as the mob is in range, instead of fading after a few seconds. When you look away from the mob, the time is extended by 1 minute.",
-		get, set):SetPoint("TOPLEFT", 40, y)
+		setting("keepMessage")):SetPoint("TOPLEFT", 40, y)
 	y = y - 30
-	get, set = setting("chatLine")
-	checkbox("Line in chat", "The same, in your chat window, so you can look back at it.", get, set)
+	checkbox("Line in chat", "The same, in your chat window, so you can look back at it.", setting("chatLine"))
 		:SetPoint("TOPLEFT", 16, y)
 	y = y - 30
-	get, set = setting("flash")
-	checkbox("Flash the screen edges", "Also makes the game's icon blink on your taskbar while the game is in the background.", get, set)
+	checkbox("Flash the screen edges", "Also makes the game's icon blink on your taskbar while the game is in the background.", setting("flash"))
 		:SetPoint("TOPLEFT", 16, y)
 	return y - 44
 end
@@ -402,10 +405,9 @@ local function buildMarker(y)
 	local top = y
 	y = y - 30
 
-	local get, set = setting("marker")
 	checkbox("Show a marker over the mob's nameplate",
 		"Shows a marker over a listed mob's nameplate for as long as it shows, so you can pick the mob out. Enemy players you scan for get the marker picked under Marker for players. Only you see it. Not in dungeons and raids, where the game keeps nameplates from addons.",
-		get, set):SetPoint("TOPLEFT", 16, y)
+		setting("marker")):SetPoint("TOPLEFT", 16, y)
 	y = y - 36
 
 	-- A dropdown picking one of `list` ({ key, name }) for the setting `key`.
@@ -426,7 +428,7 @@ local function buildMarker(y)
 				end)
 			end
 		end)
-		table.insert(refreshers, function() menu:GenerateMenu() end)
+		addRefresher(key, function() menu:GenerateMenu() end)
 		y = y - 40
 	end
 	local function icon(m) return ns.MarkerIcon(m, 16) .. " " end
@@ -447,7 +449,7 @@ local function buildMarker(y)
 	local preview = ns.NewMarker(box)
 	preview:SetPoint("CENTER")
 	preview:SetFrameLevel(box:GetFrameLevel() + 5)
-	table.insert(refreshers, function()
+	addRefresher("marker", function()
 		preview:SetAlpha(ns.db.marker and 1 or 0.35)
 	end)
 	return math.min(y - 44, top - 30 - PREVIEW_BOX - 20)
@@ -460,30 +462,13 @@ end
 local function bindLine(label, binding, y)
 	local fs = text(content, "GameFontHighlight", nil, WIDTH - 200)
 	fs:SetPoint("TOPLEFT", 22, y)
-	table.insert(refreshers, function()
+	addRefresher("bindings", function()
 		local key = ns.BoundKey(binding)
 		fs:SetText(label .. ": " .. (key and ("|cffffd100" .. key .. "|r") or "|cff808080no key set|r"))
 	end)
 end
 
-local EXPAND_TRIES = { 0, 0.1, 0.3 } -- seconds after opening to look for MobSpot's section
-
--- Expands MobSpot's section on the Keybindings page, the way clicking its header does.
--- True once it's open (or already was), false while the page hasn't drawn it yet.
-local function expandKeybindSection()
-	local list = SettingsPanel and SettingsPanel.GetSettingsList and SettingsPanel:GetSettingsList()
-	local box = list and list.ScrollBox
-	if not (box and box.FindFrameByPredicate) then return true end
-	local frame = box:FindFrameByPredicate(function(_, elementData)
-		return elementData and elementData.data and elementData.data.name == ns.BIND_SECTION
-	end)
-	if not frame then return false end
-	local data = frame.GetElementData and frame:GetElementData().data
-	if data and not data.expanded and frame.Button then frame.Button:Click() end
-	return true
-end
-
--- Opens the game's Keybindings page scrolled to MobSpot's own section, opened up.
+-- Opens the game's Keybindings page scrolled to MobSpot's own section.
 local function openKeybinds()
 	if not Settings.KEYBINDINGS_CATEGORY_ID then
 		ns.Print("set it under Esc > Options > Keybindings > MobSpot.")
@@ -494,12 +479,6 @@ local function openKeybinds()
 		return
 	end
 	Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, ns.BIND_SECTION)
-	local done = false
-	for _, delay in ipairs(EXPAND_TRIES) do
-		C_Timer.After(delay, function()
-			if not done then done = expandKeybindSection() end
-		end)
-	end
 end
 
 local function buildKeybinds(y)
@@ -512,7 +491,7 @@ local function buildKeybinds(y)
 	y = y - 40
 
 	local minimap = checkbox("Show minimap button", "Same as /ms minimap.",
-		function() return not ns.db.minimap.hide end, function(v) ns.SetMinimapShown(v) end)
+		function() return not ns.db.minimap.hide end, function(v) ns.SetMinimapShown(v) end, "minimap")
 	minimap:SetPoint("TOPLEFT", 16, y)
 	return y - 40
 end
@@ -545,8 +524,7 @@ local function build()
 	sub:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
 
 	local y = -70
-	local get, set = function() return ns.db.enabled end, function(v) ns.SetEnabled(v) end
-	checkbox("Scan for my mobs", "Same as /ms on and /ms off.", get, set):SetPoint("TOPLEFT", 16, y)
+	checkbox("Scan for my mobs", "Same as /ms on and /ms off.", setting("enabled")):SetPoint("TOPLEFT", 16, y)
 	y = y - 44
 
 	y = buildMobs(y)
@@ -564,10 +542,16 @@ end
 
 ns.Listen("Loaded", build)
 
-local function refreshIfShown()
-	if content and content:IsVisible() then refreshAll() end
-end
-ns.Listen("MobsChanged", refreshIfShown)
-ns.Listen("SettingChanged", refreshIfShown)
-ns.On("UPDATE_BINDINGS", refreshIfShown)
-ns.On("CVAR_UPDATE", refreshIfShown)
+ns.Listen("MobsChanged", function() refreshTag("mobs") end)
+ns.Listen("SettingChanged", function(key)
+	if key then refreshTag(key) elseif content and content:IsVisible() then refreshAll() end
+end)
+ns.On("UPDATE_BINDINGS", function() refreshTag("bindings") end)
+ns.On("CVAR_UPDATE", function(name)
+	local lower = type(name) == "string" and name:lower() or ""
+	if lower == "nameplatemaxdistance" then
+		refreshTag("radius")
+	elseif lower == "nameplateshowenemies" or lower == "nameplateshowall" then
+		refreshTag("nameplates")
+	end
+end)

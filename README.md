@@ -37,7 +37,7 @@ Each one can be turned off. **Test alert** (or `/ms test`) shows how it looks.
 
 | Command | What it does |
 |---|---|
-| `/ms` | options |
+| `/ms` | options (`/ms options` or `/ms config` too) |
 | `/ms on`, `/ms off` | scan for your mobs, or stop |
 | `/ms target` | add your target to the list, or take it off |
 | `/ms add <name or ID>` | add a mob by name or NPC ID |
@@ -45,9 +45,11 @@ Each one can be turned off. **Test alert** (or `/ms test`) shows how it looks.
 | `/ms list` | show the list |
 | `/ms test` | show a test alert |
 | `/ms distance` | test how far your target is and whether its nameplate shows |
+| `/ms range <yards>` | set the scan radius (30 to 40 yards) |
 | `/ms minimap` | show or hide the minimap button |
+| `/whatsnew` | open the What's New window |
 
-The minimap button opens the options; right-click it to turn scanning on or off.
+The minimap button opens the options; right-click it to turn scanning on or off. Minimap button collectors pick it up, and it's in the addon menu on the minimap too.
 
 ## Limits
 

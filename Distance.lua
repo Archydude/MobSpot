@@ -137,14 +137,15 @@ local function stop(silent)
 end
 
 local function line()
-	local over, within = span()
-	local text = spanText(over, within) .. ", nameplate " .. (barShown() and "showing" or "hidden")
+	local dist = spanText(span())
+	local shown = barShown()
+	local text = dist .. ", nameplate " .. (shown and "showing" or "hidden")
 	local x, y = position()
 	if watch and watch.x and x then
 		local walked = math.sqrt((x - watch.x) ^ 2 + (y - watch.y) ^ 2)
 		if walked >= 1 then text = text .. string.format(", %.0f yards from where you started", walked) end
 	end
-	return text, spanText(over, within) .. (barShown() and "1" or "0")
+	return text, dist .. (shown and "1" or "0")
 end
 
 local function start()

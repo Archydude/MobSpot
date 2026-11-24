@@ -66,11 +66,11 @@ This addon was made with AI.
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.4.1.zip`
+**File:** `dist\MobSpot-1.4.2.zip`
 
 **Display name**
 ```
-MobSpot 1.4.1
+MobSpot 1.4.2
 ```
 
 **Release type:** `Release`
@@ -79,6 +79,10 @@ MobSpot 1.4.1
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.4.2
+- Fixed: MobSpot now detects listed mobs across all visible nameplates in crowded areas (even past 40) and alerts immediately when you set a focus target.
+- Fixed: adjusting sliders in the options no longer rebuilds unrelated dropdowns, and distance checks run more efficiently.
+
 1.4.1
 - Fixed: enemy player range tracking handles unflagged players and hidden unit values cleanly without Lua errors.
 - Fixed: screen-edge alert flashes clean up properly, nameplate markers behave cleanly alongside other nameplate addons, and the minimap button starts at its own angle without overlapping other addons.

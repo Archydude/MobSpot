@@ -325,7 +325,15 @@ local function checkPlate(unit)
 end
 
 local function scanUnits()
-	for i = 1, MAX_PLATES do checkPlate("nameplate" .. i) end
+	if C_NamePlate and C_NamePlate.GetNamePlates then
+		for _, plate in ipairs(C_NamePlate.GetNamePlates()) do
+			if not plate:IsForbidden() and plate.namePlateUnitToken then
+				checkPlate(plate.namePlateUnitToken)
+			end
+		end
+	else
+		for i = 1, MAX_PLATES do checkPlate("nameplate" .. i) end
+	end
 	checkUnit("target")
 	checkUnit("mouseover")
 	checkUnit("focus")
@@ -399,6 +407,7 @@ ns.On("NAME_PLATE_UNIT_ADDED", function(unit)
 end)
 ns.On("PLAYER_TARGET_CHANGED", function() onUnit("target") end)
 ns.On("UPDATE_MOUSEOVER_UNIT", function() onUnit("mouseover") end)
+ns.On("PLAYER_FOCUS_CHANGED", function() onUnit("focus") end)
 
 ns.On("VIGNETTE_MINIMAP_UPDATED", function()
 	if ns.db.enabled then scanMarkers() end
