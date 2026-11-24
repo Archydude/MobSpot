@@ -59,7 +59,7 @@ local DEFAULTS = {
 	playerMarkerStyle = "cross", -- a key of ns.PLAYER_MARKERS, for enemy players
 	markerSize = 34,         -- the marker's size
 	markerMotion = "bob",    -- a key of ns.MOTIONS
-	minimap = { hide = false, minimapPos = 250 },
+	minimap = { hide = false, minimapPos = 120 },
 }
 
 local function copy(value)
@@ -249,11 +249,11 @@ end
 -- The keybind and /ms target: puts the current target on the list, or takes it off.
 function ns.ToggleTarget()
 	local name = ns.Plain(UnitName("target"))
-	if not UnitExists("target") or not name then
+	if ns.Plain(UnitExists("target")) ~= true or not name then
 		ns.Print("target a mob first, then press the key again to add it.")
 		return
 	end
-	if UnitIsPlayer("target") then
+	if ns.Plain(UnitIsPlayer("target")) == true then
 		ns.Print("MobSpot looks for mobs, not players.")
 		return
 	end

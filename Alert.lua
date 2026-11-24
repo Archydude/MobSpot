@@ -278,11 +278,14 @@ local function showMessage(title, detail, key, count)
 	layout()
 end
 
+local flashTimer
 local function flashScreen()
 	if not flash then buildFlash() end
 	flash:Show()
 	flash.pulse:Restart()
-	C_Timer.After(FLASH_FOR, function()
+	if flashTimer then flashTimer:Cancel() end
+	flashTimer = C_Timer.NewTimer(FLASH_FOR, function()
+		flashTimer = nil
 		flash.pulse:Stop()
 		flash:Hide()
 	end)

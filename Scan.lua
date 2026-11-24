@@ -195,7 +195,7 @@ ns.On("NAME_PLATE_UNIT_REMOVED", function(unit)
 			if dead == true then
 				list[guid] = nil
 				hidden[guid] = nil
-			elseif reach ~= false then
+			elseif reach == true then
 				local x, y = ns.PlayerSpot()
 				hidden[guid] = { key = key, at = GetTime(), x = x, y = y }
 			end
@@ -354,7 +354,7 @@ local function scanMarkers()
 	local radius = ns.Radius()
 	for _, guid in ipairs(C_VignetteInfo.GetVignettes() or {}) do
 		local info = C_VignetteInfo.GetVignetteInfo(guid)
-		if info and not info.isDead then
+		if info and ns.Plain(info.isDead) ~= true then
 			local key = match(info.objectGUID, info.name)
 			local atlas = ns.Plain(info.atlasName)
 			if not key and type(atlas) == "string" and atlas:sub(1, #RARE_MARKER) == RARE_MARKER then

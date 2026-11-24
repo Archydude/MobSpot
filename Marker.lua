@@ -117,7 +117,7 @@ local function onUpdate()
 end
 
 local function track(marker, on)
-	moving[marker] = on or nil
+	moving[marker] = (on and marker.motion ~= "none") or nil
 	driver:SetScript("OnUpdate", next(moving) and onUpdate or nil)
 end
 
@@ -149,6 +149,7 @@ local function style(marker)
 	icon:SetSize(size, size)
 	icon:SetAlpha(1)
 	icon:SetRotation(0)
+	track(marker, marker:IsVisible())
 	if marker:IsVisible() then animate(marker, GetTime()) end
 end
 
@@ -170,15 +171,16 @@ end
 ---------------------------------------------------------------------------
 
 local shown = {} -- [nameplate unit] = the marker frame on it
+local plateMarkers = setmetatable({}, { __mode = "k" }) -- [plate] = marker (avoids mutating Blizzard NamePlate frames)
 
 local function markerFor(plate)
-	local marker = plate.MobSpotMarker
+	local marker = plateMarkers[plate]
 	if marker then return marker end
 	marker = ns.NewMarker(plate)
 	marker:SetPoint("BOTTOM", plate, "TOP", 0, 4)
 	marker:SetFrameLevel(plate:GetFrameLevel() + 20)
 	marker:Hide()
-	plate.MobSpotMarker = marker
+	plateMarkers[plate] = marker
 	return marker
 end
 

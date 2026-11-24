@@ -83,7 +83,9 @@ end
 -- true when `unit`, an enemy, is within nameplate distance, false when it's further away, nil
 -- when the game won't say. Scan.lua asks as a nameplate goes: gone from view, or gone for real?
 function ns.InReach(unit)
-	if not (NEAR and UnitExists(unit) and UnitCanAttack("player", unit)) then return nil end
+	if not (NEAR and ns.Plain(UnitExists(unit)) == true and ns.Plain(UnitCanAttack("player", unit)) == true) then
+		return nil
+	end
 	return rowReaches(NEAR, unit)
 end
 
@@ -96,9 +98,9 @@ end)
 -- can be nil; both are nil when the game gives no answer for this target.
 local function span()
 	local list
-	if UnitCanAttack("player", "target") then
+	if ns.Plain(UnitCanAttack("player", "target")) == true then
 		list = HARM
-	elseif UnitCanAssist("player", "target") and not InCombatLockdown() then
+	elseif ns.Plain(UnitCanAssist("player", "target")) == true and not InCombatLockdown() then
 		list = HELP
 	else
 		return
