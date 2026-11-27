@@ -27,6 +27,8 @@ local LEFT_BEHIND = 45       -- yards the player moves before a mob behind the c
 local HIDDEN_FOR = 60        -- seconds a mob behind the camera counts at most
 local plateGuid = {}         -- [nameplate unit] = the GUID of the listed mob on it
 local activePlates = {}      -- [nameplate unit] = true for every nameplate currently shown
+local deadGuids = {}         -- [guid] = GetTime() when seen dead, so lingering vignettes stay quiet
+local DEAD_FORGET = 300
 local seedPlates
 
 -- Where the player stands, in world yards, or nil where the game doesn't say (dungeons).
@@ -125,14 +127,14 @@ end
 local function alertWaiting()
 	for key, find in pairs(waiting) do
 		waiting[key] = nil
-		ns.Alert(key, ns.db.mobs[key] or rares[key], find.how, find.yards, ns.InRange(key))
+		ns.Alert(key, ns.db.mobs[key] or rares[key], find.how, find.yards, ns.InRange(key), find.pin)
 	end
 end
 
 -- A listed mob or a rare was found. `how` is "near" (a nameplate, target, mouseover or focus) or
--- "map" (with `yards`, nil when the map can't tell). `guid` tells one mob of that name from
--- another: with "alert for each one" on, each of them alerts on its own.
-local function found(key, how, yards, guid)
+-- "map" (with `yards`, nil when the map can't tell, and optional `pin` = { mapID, x, y }). `guid` tells
+-- one mob of that name from another: with "alert for each one" on, each of them alerts on its own.
+local function found(key, how, yards, guid, pin)
 	local now = GetTime()
 	local last = seen[key]
 	seen[key] = now
@@ -147,13 +149,16 @@ local function found(key, how, yards, guid)
 		end
 		ones[key][guid] = now
 	end
-	if last and now - last < ALERT_AGAIN then return end
+	if last and now - last < ALERT_AGAIN then
+		if how == "map" and (yards or pin) and ns.AttachPin then ns.AttachPin(key, yards, pin) end
+		return
+	end
 	if not (each or key == PLAYERS) then -- enemy players always show their total
-		ns.Alert(key, ns.db.mobs[key] or rares[key], how, yards)
+		ns.Alert(key, ns.db.mobs[key] or rares[key], how, yards, nil, pin)
 		return
 	end
 	if not next(waiting) then C_Timer.After(0, alertWaiting) end
-	waiting[key] = { how = how, yards = yards }
+	waiting[key] = { how = how, yards = yards, pin = pin }
 end
 
 -- Forgets single mobs that have been gone for a while; they'd alert again anyway.
@@ -164,6 +169,43 @@ local function forgetOnes()
 			if now - when >= FORGET_AFTER then list[guid] = nil end
 		end
 		if not next(list) then ones[key] = nil end
+	end
+	for guid, when in pairs(deadGuids) do
+		if now - when >= DEAD_FORGET then deadGuids[guid] = nil end
+	end
+end
+
+local function markDead(key, guid, name)
+	if type(guid) == "string" then
+		deadGuids[guid] = GetTime()
+		hidden[guid] = nil
+		if key and ones[key] then
+			ones[key][guid] = nil
+			if not next(ones[key]) then
+				ones[key] = nil
+				seen[key] = nil
+			end
+		else
+			for k, list in pairs(ones) do
+				if list[guid] then
+					list[guid] = nil
+					if not next(list) then
+						ones[k] = nil
+						seen[k] = nil
+					end
+					key = key or k
+					break
+				end
+			end
+		end
+	end
+	if key and (key:sub(1, 5) == "rare:" or (type(guid) ~= "string" and not ns.db.alertEach)) then
+		ones[key] = nil
+		seen[key] = nil
+	end
+	if ns.ClearWaypoint then ns.ClearWaypoint(key, guid) end
+	if (not key or ns.InRange(key) == 0) and (key or name) and ns.DismissAlert then
+		ns.DismissAlert(key, name)
 	end
 end
 
@@ -196,8 +238,7 @@ ns.On("NAME_PLATE_UNIT_REMOVED", function(unit)
 			ns.Debug(string.format("%s left view: unit %s, dead %s, in reach %s", key,
 				UnitExists(unit) and "still there" or "gone", tostring(dead), tostring(reach)))
 			if dead == true then
-				list[guid] = nil
-				hidden[guid] = nil
+				markDead(key, guid, ns.Plain(UnitName(unit)))
 			elseif reach == true then
 				local x, y = ns.PlayerSpot()
 				hidden[guid] = { key = key, at = GetTime(), x = x, y = y }
@@ -213,57 +254,31 @@ ns.On("PLAYER_ENTERING_WORLD", function()
 end)
 
 ---------------------------------------------------------------------------
--- Scan radius: the game's nameplate distance
+-- Enemy nameplates
 ---------------------------------------------------------------------------
 
-ns.RADIUS_MIN, ns.RADIUS_MAX = 30, 40 -- the game shows no nameplate past 40 yards, whatever is set
+local IS_RETAIL = WOW_PROJECT_ID ~= nil and WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+ns.RADIUS_MAX = IS_RETAIL and 60 or 40 -- the game's nameplate limit (60 on Retail, 40 on Forever)
 local APPLY_DELAY = 1 -- seconds after entering the world or leaving combat before putting them back
 
--- The radius and "nameplates on" are the game's own settings, which other addons may set on
--- every login. So MobSpot keeps what the player picked (ns.db.radius, ns.db.nameplates) and puts
--- it back once the player is in the world, and after combat.
-
-local function setDistance()
-	return tonumber(C_CVar.GetCVar("nameplateMaxDistance")) or ns.RADIUS_MAX
-end
-
--- The scan radius in yards: the nameplate distance, up to what the game really shows.
-function ns.Radius()
-	return math.min(setDistance(), ns.RADIUS_MAX)
-end
+-- "nameplates on" is the game's own setting, which other addons may set on every login.
+-- So MobSpot remembers when the player had it turned on (ns.db.nameplates) and puts it back
+-- once the player is in the world, and after combat.
 
 -- Mobs only get a nameplate when enemy nameplates are on and shown out of combat too.
 function ns.NameplatesOn()
 	return C_CVar.GetCVarBool("nameplateShowEnemies") and C_CVar.GetCVarBool("nameplateShowAll")
 end
 
--- Puts the picked radius and nameplates back where something else changed them. The game
--- doesn't allow it in combat; it's done again when combat ends.
+-- Puts enemy nameplates back on where something else changed them. The game doesn't allow
+-- it in combat; it's done again when combat ends.
 local function apply()
 	if InCombatLockdown() then return end
-	local changed = false
-	-- a pick from before the limits changed is brought inside them
-	local radius = ns.db.radius and math.max(ns.RADIUS_MIN, math.min(ns.RADIUS_MAX, ns.db.radius))
-	if radius and math.floor(setDistance() + 0.5) ~= radius then
-		C_CVar.SetCVar("nameplateMaxDistance", tostring(radius))
-		changed = true
-	end
 	if ns.db.nameplates and not ns.NameplatesOn() then
 		C_CVar.SetCVar("nameplateShowEnemies", "1")
 		C_CVar.SetCVar("nameplateShowAll", "1")
-		changed = true
+		ns.Fire("SettingChanged", "nameplates")
 	end
-	if changed then ns.Fire("SettingChanged", "nameplates") end
-end
-
--- Sets the nameplate distance. The game keeps it within its own limit, which ns.Radius() shows
--- afterwards. During combat it waits for combat to end; returns false then.
-function ns.SetRadius(yards)
-	ns.db.radius = math.max(ns.RADIUS_MIN, math.min(ns.RADIUS_MAX, math.floor(yards + 0.5)))
-	if InCombatLockdown() then return false end
-	apply()
-	ns.Fire("SettingChanged", "radius")
-	return true
 end
 
 function ns.TurnOnNameplates()
@@ -307,7 +322,20 @@ end
 local function checkUnit(unit)
 	if not UnitExists(unit) then return end
 	local player, dead = ns.Plain(UnitIsPlayer(unit)), ns.Plain(UnitIsDead(unit))
-	if dead ~= false then return end
+	if dead ~= false then
+		if dead == true and player == false then
+			local guid = UnitGUID(unit)
+			local plainGuid = ns.Plain(guid)
+			local name = ns.Plain(UnitName(unit))
+			local key = match(guid, name)
+			if not key then
+				local id = ns.NpcID and ns.NpcID(guid)
+				key = id and ("rare:" .. id) or (type(name) == "string" and name ~= "" and ("rare:" .. name:lower()) or nil)
+			end
+			if key or plainGuid or name then markDead(key, plainGuid, name) end
+		end
+		return
+	end
 	if player == true then
 		if not wantedPlayer(unit) then return end
 		found(PLAYERS, "near", nil, UnitGUID(unit))
@@ -372,36 +400,76 @@ end
 -- Map markers
 ---------------------------------------------------------------------------
 
--- Yards from the player to a map marker, or nil when the map can't tell (indoors, instances).
-local function markerYards(guid)
+-- Yards from the player to a map marker, plus its mapID and normalized (x, y) coordinates.
+-- Falls back to the parent zone map when inside a subzone, and returns nil yards where the map can't tell.
+local function markerLocation(guid)
 	local mapID = C_Map.GetBestMapForUnit("player")
 	if not mapID then return end
 	local spot = C_VignetteInfo.GetVignettePosition(guid, mapID)
+	if not spot and C_Map.GetMapInfo then
+		local info = C_Map.GetMapInfo(mapID)
+		if info and info.parentMapID and info.parentMapID > 0 then
+			spot = C_VignetteInfo.GetVignettePosition(guid, info.parentMapID)
+			if spot then mapID = info.parentMapID end
+		end
+	end
+	if not spot then return end
+	local x, y
+	if spot.GetXY then
+		x, y = spot:GetXY()
+	else
+		x, y = spot.x, spot.y
+	end
 	local me = C_Map.GetPlayerMapPosition(mapID, "player")
-	if not (spot and me) then return end
-	local _, a = C_Map.GetWorldPosFromMapPos(mapID, spot)
-	local _, b = C_Map.GetWorldPosFromMapPos(mapID, me)
-	if not (a and b) then return end
-	local dx, dy = a.x - b.x, a.y - b.y
-	return math.sqrt(dx * dx + dy * dy)
+	local yards
+	if me and C_Map.GetWorldPosFromMapPos then
+		local _, a = C_Map.GetWorldPosFromMapPos(mapID, spot)
+		local _, b = C_Map.GetWorldPosFromMapPos(mapID, me)
+		if a and b then
+			local dx, dy = a.x - b.x, a.y - b.y
+			yards = math.sqrt(dx * dx + dy * dy)
+		end
+	end
+	return yards, mapID, x, y, spot
 end
 
 local function scanMarkers()
 	if not (ns.db.mapMarkers and C_VignetteInfo) then return end
-	local radius = ns.Radius()
+	local present = {}
 	for _, guid in ipairs(C_VignetteInfo.GetVignettes() or {}) do
 		local info = C_VignetteInfo.GetVignetteInfo(guid)
-		if info and ns.Plain(info.isDead) ~= true then
+		local objGuid = info and ns.Plain(info.objectGUID)
+		if info and ns.Plain(info.isDead) == true then
+			local name = ns.Plain(info.name)
+			local key = match(info.objectGUID, name)
+			if not key then
+				local id = ns.NpcID and ns.NpcID(objGuid)
+				key = id and ("rare:" .. id) or (type(name) == "string" and name ~= "" and ("rare:" .. name:lower()) or nil)
+			end
+			markDead(key, objGuid, name)
+		elseif info and not (objGuid and deadGuids[objGuid]) then
 			local key = match(info.objectGUID, info.name)
 			local atlas = ns.Plain(info.atlasName)
 			if not key and type(atlas) == "string" and atlas:sub(1, #RARE_MARKER) == RARE_MARKER then
 				key = rareKey(info.objectGUID, info.name)
 			end
 			if key then
-				local yards = markerYards(guid)
-				if not yards or yards <= radius then found(key, "map", yards, info.objectGUID) end
+				present[guid] = true
+				local yards, mapID, x, y, spot = markerLocation(guid)
+				local pin = (mapID and x and y) and {
+					mapID = mapID,
+					x = x,
+					y = y,
+					spot = spot,
+					vignetteGUID = guid,
+					objectGUID = objGuid,
+				} or nil
+				found(key, "map", yards, info.objectGUID, pin)
 			end
 		end
+	end
+	if C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player") and ns.ClearMissingVignette then
+		ns.ClearMissingVignette(present)
 	end
 end
 
@@ -437,9 +505,18 @@ ns.On("NAME_PLATE_UNIT_ADDED", function(unit)
 	if ns.db.enabled then checkPlate(unit) end
 end)
 ns.On("PLAYER_TARGET_CHANGED", function() onUnit("target") end)
+ns.On("PLAYER_REGEN_ENABLED", function() onUnit("target") end)
+ns.On("UNIT_HEALTH", function(unit)
+	if unit == "target" and ns.db.enabled and ns.Plain(UnitIsDead("target")) == true then
+		checkUnit("target")
+	end
+end)
 ns.On("UPDATE_MOUSEOVER_UNIT", function() onUnit("mouseover") end)
 ns.On("PLAYER_FOCUS_CHANGED", function() onUnit("focus") end)
 
 ns.On("VIGNETTE_MINIMAP_UPDATED", function()
+	if ns.db.enabled then scanMarkers() end
+end)
+ns.On("VIGNETTES_UPDATED", function()
 	if ns.db.enabled then scanMarkers() end
 end)

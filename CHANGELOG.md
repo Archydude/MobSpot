@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.0
+- Added official Retail (`12.1.5`) support alongside WoW Forever (`1.60.1`).
+- Map-marked rares are now spotted across the zone with live-updating yard distances as you move, even when hovered from afar.
+- Added Map pin (WaypointUI) and TomTom waypoints for map-marked rares: click the alert banner or the chat pin link to set one, or turn on **Set waypoint automatically** under **Map markers**. Waypoints clear automatically when the rare dies or leaves the map.
+- Alert banners can now be clicked out of combat to target the mob and dismiss immediately when the mob dies.
+- Stylized the alert banners with outlined text, a dark backdrop, accent lines, and a rare star icon.
+- Clicking the **MobSpot alert** box in Edit Mode now opens its own layout settings (**Scale**, **Background**, **Max alerts**, and **Stack direction**), saved per Edit Mode layout preset and preserved when you rename a layout.
+- Removed the **Scan radius** slider and `/ms range`; **Nameplates** keeps the status check and **Turn on nameplates** button.
+
 ## 1.4.3
 - Fixed: mobs nearby with visible nameplates no longer drop out of the count and re-alert repeatedly when several of the same mob are in front of you.
 - **Scan rares automatically** is now on by default for new installs.

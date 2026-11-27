@@ -1,6 +1,6 @@
 # MobSpot
 
-Alerts you when a mob on your list is close by. Made for WoW Forever.
+Alerts you when a mob on your list, any rare, or an enemy player is close by. Made for Retail and WoW Forever.
 
 Type `/ms` (or `/mobspot`) for the options, or find them under Esc > Options > AddOns > MobSpot.
 
@@ -18,14 +18,15 @@ Each mob on the list has a tick box to stop looking for it for a while without l
 
 ## How far it looks
 
-- **Nameplates:** a listed mob is spotted as soon as its nameplate shows, so the scan radius is the game's nameplate distance. The slider on the options page sets it, from 30 to 40 yards (the game shows no nameplate further away than 40), and it changes how far away every nameplate shows. Enemy nameplates have to be on, also out of combat: the options page says when they aren't and has a button to turn them on. The radius you pick and the nameplates MobSpot turns on stay that way, also when another addon resets them each time you log in. Your target, mouseover and focus count too.
-- **Map markers:** rare mobs the game marks on the map or minimap are spotted within your scan radius, and the alert says how far away they are.
+- **Nameplates:** a listed mob is spotted as soon as its nameplate shows. Enemy nameplates have to be on, also out of combat: the **Nameplates** section on the options page says when they aren't and has a button to turn them on, keeping them on if another addon resets them at login. Your target, mouseover and focus count too.
+- **Map markers:** rare mobs the game marks on the map or minimap are spotted across the zone, with live-updating yard distances as you move (even if you hover them from afar), plus a clickable waypoint link in chat. Under **Map markers**, pick **Map pin** (used by WaypointUI too), **TomTom**, both, or **Off**, and optionally turn on **Set waypoint automatically**. Waypoints clear automatically when the rare dies or leaves the map.
 
 While a mob stays close by it alerts only once. It alerts again when it has left and come back. With **Alert for each mob of the same name** on, every mob of that name gets its own alert, and the message shows how many are in range, kept up to date while it's on screen.
 
 ## The alert
 
-- The mob's name and how close it is, at the top of the screen, for up to 3 different mobs at once. With **Keep the message on screen** on, it stays for as long as the mob is in range, and 1 minute more when you look away from the mob. To move the message, open the game's Edit Mode and drag the **MobSpot alert** box; right-click the box to put it back.
+- A stylized banner at the top of the screen with the mob's name and distance, for up to 5 mobs at once. Click the banner out of combat to target the mob (and set its waypoint when a map-marker rare is shown); it dismisses right away when the mob dies. With **Keep the message on screen** on, it stays for as long as the mob is in range, and 1 minute more when you look away from the mob.
+- **Edit Mode:** open the game's Edit Mode to drag the **MobSpot alert** box anywhere, right-click to reset its position, or left-click it to adjust **Scale**, **Background**, **Max alerts**, and **Stack direction** (**Grow down** or **Grow up**). Each Edit Mode layout preset keeps its own position and style settings, and renaming a layout carries them over.
 - A sound: one of a dozen game alert sounds (raid warning, ready check, alarm clock, boss emote, map ping and more), any sound your other addons share, or none. It plays even with sound effects turned down. If the addon a shared sound comes from isn't loaded, you hear the raid warning instead.
 - A line in chat.
 - A flash of the screen edges, and the game's taskbar icon blinks when the game is in the background.
@@ -45,7 +46,6 @@ Each one can be turned off. **Test alert** (or `/ms test`) shows how it looks.
 | `/ms list` | show the list |
 | `/ms test` | show a test alert |
 | `/ms distance` | test how far your target is and whether its nameplate shows |
-| `/ms range <yards>` | set the scan radius (30 to 40 yards) |
 | `/ms minimap` | show or hide the minimap button |
 | `/whatsnew` | open the What's New window |
 

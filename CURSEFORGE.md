@@ -29,32 +29,28 @@ Alerts you when a mob on your list, any rare or an enemy player is close by. Add
 ```markdown
 ## Never miss the mob you're hunting
 
-MobSpot keeps a list of the mobs you're looking for and alerts you the moment one of them is close by. Made for **WoW Forever**.
+MobSpot keeps a list of the mobs you're looking for and alerts you the moment one of them, any rare, or an enemy player is nearby. Made for **Retail** and **WoW Forever**.
 
 ### Add mobs your way
 - **One key:** target a mob and press **Track/Untrack Target** to put it on the list, or to take it off.
 - **By name or NPC ID:** type it on the options page, handy for a rare you haven't met yet.
-- **Every rare:** **Scan rares automatically** is on by default, so any rare close by alerts you too.
-- **Enemy players:** turn on a player scan and enemy players close by alert as one line with a total, with their own sound and marker. Off in battlegrounds and arenas unless you want it.
+- **Every rare:** **Scan rares automatically** is on by default, so any rare nearby alerts you too.
+- **Enemy players:** scan for enemy-faction or attackable players with one combined counter, their own sound, and their own marker. Off in battlegrounds and arenas unless you turn it on.
 
-### Spotted as soon as it shows
-- A listed mob is spotted the moment its nameplate shows, up to 40 yards away.
-- Rares the game marks on the map are spotted too, with their distance in yards.
-- MobSpot can turn enemy nameplates on for you and keep them on.
+### Spotted right away, with live distance and waypoints
+- Listed mobs are spotted the moment their nameplate, target, mouseover, or focus shows. MobSpot can turn enemy nameplates on and keep them on.
+- Rares marked on the map are spotted across the zone with **live-updating yard distances** as you move, plus a clickable `[x, y]` chat link.
+- **Waypoints:** set a **Map pin** (works with WaypointUI too), **TomTom** arrow, or both by clicking the alert banner or enabling **Set waypoint automatically**. Waypoints and banners dismiss automatically when the rare dies.
 
-### An alert you won't miss
-- The mob's name, big at the top of the screen, up to 3 mobs at once. It can stay while the mob is in range, and you can drag it anywhere in Edit Mode.
-- A sound that plays even with sound effects turned down (a dozen game alerts, or any your other addons share), a chat line and a flash of the screen edges.
-- **Several of the same mob:** with **Alert for each mob of the same name**, every one that comes close gets its own alert, with the total in range on screen.
-- A mob that leaves and comes back alerts again; looking away for under a minute doesn't count.
-
-### A marker over the mob
-A skull over its nameplate, or one of a dozen other markers, in any size, bobbing, pulsing, spinning or still. Only you see it.
+### Stylized, clickable alerts
+- Outlined alert banners with a rare star icon, dark backdrop, and accent lines, up to 5 stacked alerts at once. Click any mob banner out of combat to target it.
+- **Edit Mode integration:** drag the **MobSpot alert** box anywhere, or click it in Edit Mode to change **Scale**, **Background**, **Max alerts**, and **Stack direction** — saved per Edit Mode layout preset.
+- Custom sounds (game alerts or shared addon sounds), chat lines, screen-edge flashes, and animated nameplate markers.
 
 ### Good to know
 - **/ms** or the minimap button opens the options.
 - No herbs or ore: the game doesn't let addons see things you gather.
-- There's no marker in dungeons and raids.
+- Nameplate markers don't show in dungeons and raids.
 
 This addon was made with AI.
 
@@ -66,19 +62,28 @@ This addon was made with AI.
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.4.3.zip`
+**File:** `dist\MobSpot-1.5.0.zip`
 
 **Display name**
 ```
-MobSpot 1.4.3
+MobSpot 1.5.0
 ```
 
 **Release type:** `Release`
 
-**Game versions:** Forever `1.60.1`.
+**Game versions:** Retail `12.1.5`, Forever `1.60.1`.
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.5.0
+- Added official Retail (`12.1.5`) support alongside WoW Forever (`1.60.1`).
+- Map-marked rares are now spotted across the zone with live-updating yard distances as you move, even when hovered from afar.
+- Added Map pin (WaypointUI) and TomTom waypoints for map-marked rares: click the alert banner or the chat pin link to set one, or turn on **Set waypoint automatically** under **Map markers**. Waypoints clear automatically when the rare dies or leaves the map.
+- Alert banners can now be clicked out of combat to target the mob and dismiss immediately when the mob dies.
+- Stylized the alert banners with outlined text, a dark backdrop, accent lines, and a rare star icon.
+- Clicking the **MobSpot alert** box in Edit Mode now opens its own layout settings (**Scale**, **Background**, **Max alerts**, and **Stack direction**), saved per Edit Mode layout preset and preserved when you rename a layout.
+- Removed the **Scan radius** slider and `/ms range`; **Nameplates** keeps the status check and **Turn on nameplates** button.
+
 1.4.3
 - Fixed: mobs nearby with visible nameplates no longer drop out of the count and re-alert repeatedly when several of the same mob are in front of you.
 - **Scan rares automatically** is now on by default for new installs.

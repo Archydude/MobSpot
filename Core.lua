@@ -40,18 +40,24 @@ local DEFAULTS = {
 	enabled = true,          -- scanning on or off
 	mobs = {},               -- [lowercase name] = { name = "Shown name", npcID = number or nil, on = true }
 	mapMarkers = true,       -- mobs the game marks on the map and minimap
+	waypoint = "pin",        -- "none" | "pin" | "tomtom" | "both", for map-marker rares
+	autoWaypoint = false,    -- set waypoint automatically when a map-marker rare is spotted
 	rares = true,            -- also every rare mob, listed or not
 	playersEnemy = false,    -- also players of the other faction
 	playersAttack = false,   -- also players the player can attack
 	playersPvp = false,      -- those two also inside battlegrounds and arenas
 	sound = "raidwarning",   -- a key of ns.SOUNDS
 	playerSound = "alarm",   -- the same, for the enemy players alert
-	radius = false,          -- the scan radius the player picked, in yards; false until they pick one
 	nameplates = false,      -- true once the player had MobSpot turn on enemy nameplates
 	alertEach = false,       -- every mob of the same name alerts on its own, not only the first
 	screenText = true,       -- big message at the top of the screen
 	keepMessage = false,     -- that message stays for as long as the mob is in range
 	messageSpot = false,     -- { x, y } where the player dragged that message in Edit Mode
+	messageScale = 1,        -- alert banner scale (0.7 .. 1.6)
+	messageBgAlpha = 0.68,   -- alert banner background opacity (0 .. 1)
+	messageGrow = "down",    -- "down" | "up": direction stacked alerts grow
+	messageMax = 3,          -- max alerts shown at once (1 .. 5)
+	messageLayouts = {},     -- [layoutName] = { spot, scale, bgAlpha, grow, max } per Edit Mode preset
 	chatLine = true,         -- a line in chat
 	flash = true,            -- flash the screen edges, and the game's taskbar icon
 	marker = true,           -- a marker over a listed mob's nameplate

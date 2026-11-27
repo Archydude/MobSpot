@@ -154,7 +154,7 @@ local function start()
 	watch = { x = x, y = y }
 	local text, state = line()
 	watch.last = state
-	ns.Print(name .. ": " .. text .. ". The scan radius is " .. string.format("%.0f", ns.Radius()) .. " yards.")
+	ns.Print(name .. ": " .. text .. ".")
 	ns.Print("walk away and it says so each time this changes. /ms distance again stops it.")
 	watch.ticker = C_Timer.NewTicker(WATCH_EVERY, function()
 		if not UnitExists("target") then

@@ -251,46 +251,12 @@ local function buildMobs(y)
 end
 
 ---------------------------------------------------------------------------
--- Scan radius
+-- Nameplates
 ---------------------------------------------------------------------------
 
-local function buildRadius(y)
-	heading("Scan radius", y)
-	y = y - 26
-	local about = text(content, "GameFontHighlight",
-		"A mob is spotted as soon as its nameplate shows, so the radius is the game's nameplate distance. "
-			.. "It changes how far away every nameplate shows. The game shows none further away than 40 yards.",
-		WIDTH - 20)
-	about:SetPoint("TOPLEFT", 20, y)
-	y = y - 44
-
-	local slider = CreateFrame("Frame", nil, content, "MinimalSliderWithSteppersTemplate")
-	slider:SetSize(260, 20)
-	slider:SetPoint("TOPLEFT", 20, y)
-	local value = text(content, "GameFontHighlight")
-	value:SetPoint("LEFT", slider, "RIGHT", 12, 0)
-	local step = 5
-	slider:Init(ns.Radius(), ns.RADIUS_MIN, ns.RADIUS_MAX, (ns.RADIUS_MAX - ns.RADIUS_MIN) / step)
-	local syncing = false
-	local function showValue()
-		value:SetText(math.floor(ns.Radius() + 0.5) .. " yards")
-	end
-	slider:RegisterCallback(MinimalSliderWithSteppersMixin.Event.OnValueChanged, function(_, picked)
-		if syncing then return end
-		if not ns.SetRadius(picked) then
-			value:SetText("|cffffd100" .. math.floor(picked + 0.5) .. " yards after combat|r")
-			return
-		end
-		showValue()
-	end, slider)
-	addRefresher("radius", function()
-		syncing = true
-		slider:SetValue(ns.Radius())
-		syncing = false
-		showValue()
-	end)
-	y = y - 34
-
+local function buildNameplates(y)
+	heading("Nameplates", y)
+	y = y - 28
 	local status = text(content, "GameFontHighlight", nil, WIDTH - 200)
 	status:SetPoint("TOPLEFT", 20, y)
 	local turnOn = button(content, "Turn on nameplates", 170, function() ns.TurnOnNameplates() end)
@@ -316,10 +282,35 @@ local function buildOther(y)
 	heading("Map markers", y)
 	y = y - 30
 	local markers = checkbox("Mobs the game marks on the map",
-		"Rare mobs the game puts a marker on, on the map or minimap, are spotted within your scan radius, and the alert says how far away they are.",
+		"Rare mobs the game puts a marker on, on the map or minimap, are spotted as soon as they appear, and the alert says how far away they are.",
 		setting("mapMarkers"))
 	markers:SetPoint("TOPLEFT", 16, y)
-	return y - 44
+	y = y - 36
+
+	local label = text(content, "GameFontHighlight", "Waypoint")
+	label:SetPoint("TOPLEFT", 22, y - 6)
+	local menu = CreateFrame("DropdownButton", nil, content, "WowStyle1DropdownTemplate")
+	menu:SetWidth(200)
+	menu:SetPoint("TOPLEFT", 170, y)
+	if menu.Text then menu.Text:SetFontObject("GameFontHighlight") end
+	menu:SetupMenu(function(_, root)
+		for _, item in ipairs(ns.WAYPOINTS) do
+			local name = item.name .. (item.key == ns.DEFAULT_WAYPOINT and " |cff808080(default)|r" or "")
+			root:CreateRadio(name, function() return ns.db.waypoint == item.key end, function()
+				ns.db.waypoint = item.key
+				ns.Fire("SettingChanged", "waypoint")
+			end)
+		end
+	end)
+	tooltip(menu, "Waypoint", "Sets a map pin (used by WaypointUI too) and/or a TomTom arrow when a rare on the map is spotted.")
+	addRefresher("waypoint", function() menu:GenerateMenu() end)
+	y = y - 38
+
+	local auto = checkbox("Set waypoint automatically",
+		"Sets the waypoint on its own when a rare on the map is spotted. When off, click the alert banner or the chat pin link to set it.",
+		setting("autoWaypoint"))
+	auto:SetPoint("TOPLEFT", 16, y)
+	return y - 40
 end
 
 ---------------------------------------------------------------------------
@@ -528,7 +519,7 @@ local function build()
 	y = y - 44
 
 	y = buildMobs(y)
-	y = buildRadius(y)
+	y = buildNameplates(y)
 	y = buildOther(y)
 	y = buildAlert(y)
 	y = buildMarker(y)
@@ -549,9 +540,7 @@ end)
 ns.On("UPDATE_BINDINGS", function() refreshTag("bindings") end)
 ns.On("CVAR_UPDATE", function(name)
 	local lower = type(name) == "string" and name:lower() or ""
-	if lower == "nameplatemaxdistance" then
-		refreshTag("radius")
-	elseif lower == "nameplateshowenemies" or lower == "nameplateshowall" then
+	if lower == "nameplateshowenemies" or lower == "nameplateshowall" then
 		refreshTag("nameplates")
 	end
 end)

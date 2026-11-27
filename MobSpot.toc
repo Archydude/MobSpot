@@ -1,8 +1,8 @@
-## Interface: 16001
+## Interface: 120105, 16001
 ## Title: MobSpot
 ## Notes: Alerts you when a mob on your list is close by: target a mob and press your key to add it, or type its name or ID. Type /ms.
 ## Author: Archdude
-## Version: 1.4.3
+## Version: 1.5.0
 ## IconTexture: Interface\Icons\Ability_Hunter_MarkedForDeath
 ## Category-enUS: Combat
 ## X-License: MIT
@@ -11,7 +11,7 @@
 ## AddonCompartmentFuncOnEnter: MobSpot_OnAddonCompartmentEnter
 ## AddonCompartmentFuncOnLeave: MobSpot_OnAddonCompartmentLeave
 ## SavedVariables: MobSpotDB, MobSpotWhatsNew
-## OptionalDeps: LibStub, CallbackHandler-1.0, LibSharedMedia-3.0, LibDataBroker-1.1, LibDBIcon-1.0, SharedMedia
+## OptionalDeps: LibStub, CallbackHandler-1.0, LibSharedMedia-3.0, LibDataBroker-1.1, LibDBIcon-1.0, SharedMedia, TomTom
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
