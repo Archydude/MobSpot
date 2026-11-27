@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3
+- Fixed: mobs nearby with visible nameplates no longer drop out of the count and re-alert repeatedly when several of the same mob are in front of you.
+- **Scan rares automatically** is now on by default for new installs.
+
 ## 1.4.2
 - Fixed: MobSpot now detects listed mobs across all visible nameplates in crowded areas (even past 40) and alerts immediately when you set a focus target.
 - Fixed: adjusting sliders in the options no longer rebuilds unrelated dropdowns, and distance checks run more efficiently.

@@ -26,6 +26,8 @@ local hidden = {}
 local LEFT_BEHIND = 45       -- yards the player moves before a mob behind the camera stops counting
 local HIDDEN_FOR = 60        -- seconds a mob behind the camera counts at most
 local plateGuid = {}         -- [nameplate unit] = the GUID of the listed mob on it
+local activePlates = {}      -- [nameplate unit] = true for every nameplate currently shown
+local seedPlates
 
 -- Where the player stands, in world yards, or nil where the game doesn't say (dungeons).
 function ns.PlayerSpot()
@@ -183,6 +185,7 @@ end
 -- A nameplate is going. A dead mob stops counting at once. One that is still in reach was only
 -- turned away from, so it keeps counting; one that walked out of reach doesn't.
 ns.On("NAME_PLATE_UNIT_REMOVED", function(unit)
+	activePlates[unit] = nil
 	local live = ns.Plain(UnitGUID(unit))
 	local guid = type(live) == "string" and live or plateGuid[unit]
 	plateGuid[unit] = nil
@@ -204,7 +207,10 @@ ns.On("NAME_PLATE_UNIT_REMOVED", function(unit)
 	end
 end)
 
-ns.On("PLAYER_ENTERING_WORLD", function() wipe(hidden) end)
+ns.On("PLAYER_ENTERING_WORLD", function()
+	wipe(hidden)
+	seedPlates()
+end)
 
 ---------------------------------------------------------------------------
 -- Scan radius: the game's nameplate distance
@@ -324,15 +330,38 @@ local function checkPlate(unit)
 	ns.Mark(unit, key and (key == PLAYERS and "player" or "mob"))
 end
 
+local function plateToken(plate)
+	if not plate or plate:IsForbidden() then return end
+	return plate.namePlateUnitToken or (plate.UnitFrame and plate.UnitFrame.unit)
+end
+
+function seedPlates()
+	wipe(activePlates)
+	if C_NamePlate and C_NamePlate.GetNamePlates then
+		for _, plate in ipairs(C_NamePlate.GetNamePlates()) do
+			local unit = plateToken(plate)
+			if unit then activePlates[unit] = true end
+		end
+	end
+	for i = 1, MAX_PLATES do
+		local unit = "nameplate" .. i
+		if UnitExists(unit) then activePlates[unit] = true end
+	end
+end
+
 local function scanUnits()
 	if C_NamePlate and C_NamePlate.GetNamePlates then
 		for _, plate in ipairs(C_NamePlate.GetNamePlates()) do
-			if not plate:IsForbidden() and plate.namePlateUnitToken then
-				checkPlate(plate.namePlateUnitToken)
-			end
+			local unit = plateToken(plate)
+			if unit then activePlates[unit] = true end
 		end
-	else
-		for i = 1, MAX_PLATES do checkPlate("nameplate" .. i) end
+	end
+	for unit in pairs(activePlates) do
+		if UnitExists(unit) then
+			checkPlate(unit)
+		else
+			activePlates[unit] = nil
+		end
 	end
 	checkUnit("target")
 	checkUnit("mouseover")
@@ -396,6 +425,7 @@ ns.Listen("Loaded", rebuild)
 ns.Listen("MobsChanged", rebuild)
 
 ns.On("PLAYER_LOGIN", function()
+	seedPlates()
 	C_Timer.NewTicker(TICK, tick)
 end)
 
@@ -403,6 +433,7 @@ local function onUnit(unit)
 	if ns.db.enabled then checkUnit(unit) end
 end
 ns.On("NAME_PLATE_UNIT_ADDED", function(unit)
+	activePlates[unit] = true
 	if ns.db.enabled then checkPlate(unit) end
 end)
 ns.On("PLAYER_TARGET_CHANGED", function() onUnit("target") end)

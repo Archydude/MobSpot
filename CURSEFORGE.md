@@ -34,7 +34,7 @@ MobSpot keeps a list of the mobs you're looking for and alerts you the moment on
 ### Add mobs your way
 - **One key:** target a mob and press **Track/Untrack Target** to put it on the list, or to take it off.
 - **By name or NPC ID:** type it on the options page, handy for a rare you haven't met yet.
-- **Every rare:** turn on **Scan rares automatically** and any rare close by alerts you too.
+- **Every rare:** **Scan rares automatically** is on by default, so any rare close by alerts you too.
 - **Enemy players:** turn on a player scan and enemy players close by alert as one line with a total, with their own sound and marker. Off in battlegrounds and arenas unless you want it.
 
 ### Spotted as soon as it shows
@@ -58,7 +58,7 @@ A skull over its nameplate, or one of a dozen other markers, in any size, bobbin
 
 This addon was made with AI.
 
-**Feedback and bug reports are welcome** in the comments.
+**Feedback, suggestions, and bug reports are welcome** in the comments or by sending me a message on Discord.
 ```
 ---
 
@@ -66,11 +66,11 @@ This addon was made with AI.
 
 ## B. Upload File form
 
-**File:** `dist\MobSpot-1.4.2.zip`
+**File:** `dist\MobSpot-1.4.3.zip`
 
 **Display name**
 ```
-MobSpot 1.4.2
+MobSpot 1.4.3
 ```
 
 **Release type:** `Release`
@@ -79,6 +79,10 @@ MobSpot 1.4.2
 
 **Changelog** (paste only the newest part; paste older parts too if they never went up)
 ```markdown
+1.4.3
+- Fixed: mobs nearby with visible nameplates no longer drop out of the count and re-alert repeatedly when several of the same mob are in front of you.
+- **Scan rares automatically** is now on by default for new installs.
+
 1.4.2
 - Fixed: MobSpot now detects listed mobs across all visible nameplates in crowded areas (even past 40) and alerts immediately when you set a focus target.
 - Fixed: adjusting sliders in the options no longer rebuilds unrelated dropdowns, and distance checks run more efficiently.

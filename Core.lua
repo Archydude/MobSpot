@@ -40,7 +40,7 @@ local DEFAULTS = {
 	enabled = true,          -- scanning on or off
 	mobs = {},               -- [lowercase name] = { name = "Shown name", npcID = number or nil, on = true }
 	mapMarkers = true,       -- mobs the game marks on the map and minimap
-	rares = false,           -- also every rare mob, listed or not
+	rares = true,            -- also every rare mob, listed or not
 	playersEnemy = false,    -- also players of the other faction
 	playersAttack = false,   -- also players the player can attack
 	playersPvp = false,      -- those two also inside battlegrounds and arenas

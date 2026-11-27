@@ -10,7 +10,7 @@ Type `/ms` (or `/mobspot`) for the options, or find them under Esc > Options > A
 - **By name or ID:** type the name on the options page, exactly as the game shows it, or the mob's NPC ID (the number in its Wowhead link), and press Enter. Handy for a rare you haven't met yet. A mob added by ID shows its name once the game knows it, at the latest when it's first spotted.
 - `/ms target` does the same as the key.
 
-**Scan rares automatically**, under the list, alerts you for any rare mob close by, on your list or not, with "(rare)" after its name. They don't go on the list.
+**Scan rares automatically** (on by default), under the list, alerts you for any rare mob close by, on your list or not, with "(rare)" after its name. They don't go on the list.
 
 **Scan enemy-faction players** and **Scan players you can attack**, under it, alert you for players: any player of the other faction, or any player you can attack right now. All of them share one **Enemy players** line that says how many are close by, with a sound of its own (**Sound for players**) and a nameplate marker of its own (**Marker for players**: any of the markers, or none). Players don't alert in battlegrounds and arenas unless you turn on **Scan players in battlegrounds and arenas too**.
 
